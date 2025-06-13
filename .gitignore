@@ -1,0 +1,32 @@
+# Build artifacts
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider & VS Code config
+.idea/
+.vscode/
+
+# Logs & config
+*.log
+*.vspscc
+*.pdb
+
+# Secrets (jaga keamanan!)
+appsettings.*.json
+!appsettings.json
+
+# NuGet
+*.nupkg
+.nuget/
+packages/
+
+# OS-specific
+.DS_Store
+Thumbs.db
