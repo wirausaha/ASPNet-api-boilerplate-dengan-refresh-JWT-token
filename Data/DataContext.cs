@@ -13,12 +13,20 @@ namespace AspApi.Data
        public DbSet<AspApi.Models.SysToken> SysTokens { get; set; }
 
 	
+    // this is for PostgreSQL database connection, shoul be modified if using other database engines
+    // Bagian ini harus disesuaikan dengan database engine yang digunakan
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-//      modelBuilder.Entity<AspApi.Models.UserCompany>()
-//          .HasKey(uc => new { uc.UserName, uc.CompanyCode });
 
-      // base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<SysToken>()
+        .Property(e => e.ExpireDate)
+        .HasColumnType("timestamp without time zone") 
+        .HasConversion(
+            v => v,
+            v => DateTime.SpecifyKind(v, DateTimeKind.Unspecified));
+   
+
+        base.OnModelCreating(modelBuilder);
 
     }
 

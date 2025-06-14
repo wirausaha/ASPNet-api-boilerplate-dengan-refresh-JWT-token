@@ -6,7 +6,8 @@ CREATE TABLE tbsystoken (
   "UserId" VARCHAR(32),
   "UserRole" VARCHAR(32),
   "Email" VARCHAR(320),
-  "ExpireDate" TIMESTAMP
+  "ExpireDate" TIMESTAMP WITHOUT TIME ZONE,
+  "IsExpired" SMALLINT DEFAULT 0
 );
 
 CREATE TABLE "users" (
@@ -34,11 +35,11 @@ CREATE TABLE "users" (
   "IsPhoneConfirmed" SMALLINT DEFAULT 0,
   "IsActive" SMALLINT DEFAULT 1,
   "LastVisitedURL" VARCHAR(255),
-  "LastLoginTime" TIMESTAMP,
-  "LastLogoutTime" TIMESTAMP,
+  "LastLoginTime" TIMESTAMP WITHOUT TIME ZONE,
+  "LastLogoutTime" TIMESTAMP WITHOUT TIME ZONE,
   "MembershipId" VARCHAR(3) DEFAULT '000',
   "TermsAgrement" SMALLINT DEFAULT 1,
-  "CreatedAt" TIMESTAMP,
-  "UpdatedAt" TIMESTAMP,
+  "CreatedAt" TIMESTAMP WITHOUT TIME ZONE,
+  "UpdatedAt" TIMESTAMP WITHOUT TIME ZONE,
   PRIMARY KEY ("UserId")
 );

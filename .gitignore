@@ -3,6 +3,11 @@ bin/
 obj/
 out/
 
+# Experumental 
+Resources/Lang/
+Gateways/Translator/
+Helpers/JsonMessageLocalizer.cs
+
 # User-specific files
 *.user
 *.suo

@@ -1,9 +1,11 @@
 using AspApi.Data;
 using AspApi.Services;
+using AspApi.Gateways.Translator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
+using AspApi.DTOServices;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -53,6 +55,9 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<SysTokenService>();
+
+builder.Services.AddScoped<ValidasiTokenService>();
+
 
 // Daftarkan service untuk deteksi bahasa
 builder.Services.AddHttpContextAccessor();

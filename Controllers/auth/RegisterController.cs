@@ -1,13 +1,17 @@
 /* ============================================================
  * AspApi - ASP.NET Core Web API Example
- *  Copyright (c) 2023 Kunta Soft : by Fajrie R Aradea 
+ *  Copyright (c) 2023 Kunta Soft by Fajrie R Aradea 
     *  Licensed under the MIT License
+    * All rights reserved.
+    
+ Documentation is using google translate, I'm sorry if the translation is not accurate. 
 ============================================================= */    
 using Microsoft.AspNetCore.Mvc;
 using AspApi.Models;
 using AspApi.Utilities;
 using AspApi.Services;
 using System.Text.RegularExpressions;
+using AspApi.Helpers;
 
 [Route("api/auth")]
 [ApiController]
@@ -38,6 +42,7 @@ public class RegisterController : ControllerBase
         Console.WriteLine("Username : " + request.username);
         Console.WriteLine("Email : " + request.email);
         Console.WriteLine("Password : " + request.password);
+        
         Console.WriteLine(DateTime.Now.ToString() + " : Enter api/auth/register");
 
         var userName = (request.username ?? "").Trim();
@@ -46,6 +51,7 @@ public class RegisterController : ControllerBase
 
         if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(passWord))
         {
+            
             return BadRequest(new { success = false, message = (_lang.CurrentLang == "id") ? 
                 "Username, email, atau password tidak boleh kosong" : 
                 "Username, email, or password could not be empty" }    );
@@ -81,7 +87,7 @@ public class RegisterController : ControllerBase
                         "Username atau email sudah ada di database" : 
                         "Username or email already exists in the database" });
         }
-
+        // If validation passes, proceed to create a new user
         // Jika semua validasi berhasil, lanjutkan untuk membuat user baru
         User UpdateUser = new User();
         var TokenUserName = userName;        
@@ -93,10 +99,12 @@ public class RegisterController : ControllerBase
         UpdateUser.TermsAgrement = request.termsagrement ? 1 : 0; // set TermsAgrement sesuai dengan rememberme
         _userservice.AddUser(UpdateUser);
         return Ok(new { success = true, message = (_lang.CurrentLang == "id") ? 
-                    "register berhasil, silahkan login" : "Registration successful, please login" });
+                    "register berhasil, silahkan login" : "" });
     }
+
 }
 
+// Model to handle registration request data
 // Model untuk menangani data request login
 public class RegisterRequest
 {

@@ -1,3 +1,11 @@
+/* ============================================================
+ * AspApi - ASP.NET Core Web API Example
+ *  Copyright (c) 2023 Kunta Soft by Fajrie R Aradea 
+    *  Licensed under the MIT License
+    * All rights reserved.
+
+ Documentation is using google translate, I'm sorry if the translation is not accurate. 
+============================================================= */  
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -9,8 +17,6 @@ using AspApi.Services;
 using AspApi.DTOServices;
 using Microsoft.AspNetCore.Authentication;
 
-
-
 [Route("api/auth")]
 [ApiController]
 public class AuthController : ControllerBase
@@ -20,60 +26,75 @@ public class AuthController : ControllerBase
     private readonly UserService _userservice;
     private readonly SysTokenService _tokenservice;
     private readonly ValidasiTokenService _validasitokenservice;
+    private readonly ILanguageProvider _lang;
+
 
     public AuthController(IConfiguration config, 
         UserService userService , 
         SysTokenService tokenService,
+        ILanguageProvider lang,
         ValidasiTokenService validasitokenservice)
     {
         _config = config;
         _userservice = userService;
         _tokenservice = tokenService;
         _validasitokenservice = validasitokenservice;
+        _lang = lang;
     }
 
+    
     [HttpPost("login")]
     public IActionResult Login([FromBody] LoginRequest request)
     {
-        // Contoh validasi sederhana
+        // Validasi sederhana
+        // Simple Validation
         var userName = (request.username ?? "").Trim();
         var passWord = (request.password ?? "").Trim();
 
         if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(passWord))
         {
-            return Unauthorized(new { success = false, message = "Username atau password salah", token = "" });
+            return Unauthorized(new { success = false, message = (_lang.CurrentLang == "id") ? 
+                "Username atau password salah" : 
+                "Username or password failed", token = "" });
         }
 
-        // Cek apakah dan ambil data user dari database
+        // Check is username exist in database
+        // Cek apakah user valid dan ambil data user dari database
         var userLogin = _userservice.GetUser(userName);
         if (string.IsNullOrEmpty(userLogin.UserId))
         {
-            return Unauthorized(new { success = false, message = "Username atau password salah", token = "" });
+            return Unauthorized(new { success = false, message = (_lang.CurrentLang == "id") ? 
+                "Username atau password salah" : "Username or password failed", token = "" });
         }
 
+        // Check is password valid
         // Cek apakah password valid 
         var userValid = _userservice.VerifyPassword(passWord, userLogin.Password!); // compare password
         if (userValid == false)
         {
-            return Unauthorized(new { success = false, message = "Username atau password salah", token = "" });
+            return Unauthorized(new { success = false, message = (_lang.CurrentLang == "id") ? 
+                "Username atau password salah" : "Username or password failed", token = "" });
         }
 
         // Modifikasi data userLogin jika perlu dari database
-        string defaultCompanyCode = "0000";
-        string companyRole = "Admin"; // default role, bisa diambil dari userLogin jika ada
+        string defaultCompanyCode = "0000"; // userLogin.CompanyCode ?? "0000" 
+        string companyRole = "Admin"; // userLogin.UserRole ?? "0000" default role, bisa diambil dari userLogin jika ada
 
-
+        // Generate JWT token
         // buat token JWT
         var token = GenerateJwtToken(userName,  
             userLogin.Email + "",
             companyRole, 
             defaultCompanyCode, request.rememberme);
 
+        // Generate Refresh Token
         // buat refresh token
         var refreshtoken = GenerateRefreshToken();
 
+        // for testing refreshtoken is given only a few minutes here using 30 minutes or 1 hour if remember me
         // untuk pengetesan refreshtoken diberikan hanya beberapa menit disini menggunakan 30 menit atau 1 jam kalau remember me
         var expiresIn = request.rememberme ? TimeSpan.FromHours(1) : TimeSpan.FromMinutes(30);
+
         //var expiresIn = request.rememberme ? TimeSpan.FromDays(14) : TimeSpan.FromDays(7);
 
         var sysToken = new SysToken
@@ -89,7 +110,9 @@ public class AuthController : ControllerBase
         _tokenservice.AddToken(sysToken);         
 
         // Console.WriteLine("Token : " + token);
-        return Ok(new { success = true, message = "Login berhasil", token = token, refreshtoken = refreshtoken });
+        return Ok(new { success = true, message = (_lang.CurrentLang == "id") ? 
+                    "Login berhasil" : "Login success", 
+                    token = token, refreshtoken = refreshtoken });
         
 
     }
@@ -97,28 +120,33 @@ public class AuthController : ControllerBase
     [HttpGet("logout")]
     public IActionResult Logout()
     {
+
         string bearerToken = HttpContext.Request.Headers["Authorization"]!;
         string token = bearerToken!.Replace("Bearer ", "").Trim();
         var tokenInfo = _tokenservice.GetTokenInfo(token);
+        Console.WriteLine("Logout token : " + token);
         if (tokenInfo != null) 
         {
             _tokenservice.DisactivateToken(tokenInfo);
         }         
         HttpContext.SignOutAsync(); // 🔥 Hapus session user
         Console.WriteLine("Logout berhasil");
-        return Ok(new { success = true, message = "Logout berhasil" });
+        return Ok(new { success = true, message = 
+            (_lang.CurrentLang == "id") ? "Logout berhasil" : "Logout success" });
     }
 
     [HttpPost("refreshtoken")]
     public IActionResult RefreshToken([FromBody] RefreshTokenRequest request)
     {
 
-        // Pengecekan token saat refresh token tidak menggunakan ValidasiTokenServices
+        // Token checking when refreshing token does not use ValidationTokenServices()
+        // because the result is definitely invalid
+        // Pengecekan token saat refresh token tidak menggunakan ValidasiTokenServices()
         // karena pasti hasilnya tidak valid
-
         request.accessToken = (request.accessToken ?? "").Trim();
         request.refreshToken = (request.refreshToken ?? "").Trim();
 
+        // We use token from Authorization header not from request body
         // Gunakan token dari header Authorization bukan dari request body
         string bearerToken = HttpContext.Request.Headers["Authorization"]!;
         string token = bearerToken!.Replace("Bearer ", "").Trim();
@@ -128,29 +156,37 @@ public class AuthController : ControllerBase
 
         if (userName == "" )
         {
+            // Token is invalid, does not exist or has expired. Try disabling the token in the database.
             // Token invalid, tidak ada atau sudah expired. Coba nonaktifkan token di database
-            // Gunakan token dari header Authorization
             var tokenInfo = _tokenservice.GetTokenInfo(token);
             if (tokenInfo != null) {
-                if (tokenInfo.ExpireDate < DateTime.Now) {
+                // Catatan : Sebaiknya dibuatkan helper untuk membandingkan field timestamp dengan DateTime.Now
+                if (tokenInfo.ExpireDate < DateTime.Now) {  
                     _tokenservice.DisactivateToken(tokenInfo);
                     Console.WriteLine("access token and refresh token expired, please re login");
-                    return BadRequest(new { success = false, message = "Access token and refresh token expired, please re-login" });
+                    return BadRequest(new { success = false, message = (_lang.CurrentLang == "id") ? 
+                                "Access and refresh token kadaluarsa, silahkan login kembali" : 
+                                "Access and refresh token expired, please re-login"  });
                 }
-                // Buat token baru dengan data dari tokenInfo
+
+                // Prepare a new token with data from tokenInfo
+                // Siapkan token baru dengan data dari tokenInfo
                 userName = tokenInfo.UserId ?? "Demo1";
                 string companyCode = tokenInfo.CompanyCode ?? "0000"; 
                 string userRole = tokenInfo.UserRole ?? "Admin";
                 string userEmail = tokenInfo.Email ?? "demo@demo.com";
 
+                // Create a new JWT token
                 // Buat JWT token baru
                 var newToken = GenerateJwtToken(userName,  userEmail, userRole, companyCode, request.rememberme);
                 var newRefreshToken = GenerateRefreshToken();
 
+                // Deactivate or preferably delete the old token immediately
                 // nonaktifkan atau sebaiknya langsung dihapus token lama
                 // untuk pengetesan, non-aktifkan saja token lama
                 _tokenservice.DisactivateToken(tokenInfo);  
 
+                // for testing use a few minutes, here use 30 minutes or 1 hour if remember me
                 // untuk pengetesan gunakan beberapa menit, disini menggunakan 30 menit atau 1 jam kalau remember me
                 var expiresIn = request.rememberme ? TimeSpan.FromHours(1) : TimeSpan.FromMinutes(30);
                 var newSysToken = new SysToken
@@ -165,13 +201,18 @@ public class AuthController : ControllerBase
                 };
                 _tokenservice.AddToken(newSysToken);
                 
+                // return new token
                 // Kembalikan token baru
                 return Ok(new { success = true, token = newToken, refreshtoken = newRefreshToken });
             } else {
+                // Token data from Bearer was not found in claim and in database
                 // data token dari Bearer tidak ditemukan di claim dan di database
-                return Unauthorized(new { success = false, message = "token tidak ditemukan di database, please re-login" });
+                return Unauthorized(new { success = false, message = (_lang.CurrentLang == "id") ? 
+                                "Token tidak ditemukan di database, please re-login" : 
+                                "Token not found in database, please re-login" });
             }
        } else {
+            // the token is still active, just return the data he sent
             // token masih aktif, kembalikan saja data yang dia kirim 
             return Ok(new { success = true, token = token, refreshtoken = request.refreshToken });
        }
@@ -198,7 +239,9 @@ public class AuthController : ControllerBase
             new Claim(ClaimTypes.NameIdentifier, companyCode),
             new Claim(ClaimTypes.Email, email)
         };
-        // untuk pengetesan gunakan hanya beberapa menit
+
+        // for testing use a few minutes, here use 1 minutes
+        // untuk pengetesan gunakan beberapa menit, disini menggunakan1 menit
         var expiresIn = rememberme ? TimeSpan.FromMinutes(1) : TimeSpan.FromMinutes(1);
 
         //var expiresIn = rememberme ? TimeSpan.FromDays(7) : TimeSpan.FromMinutes(15);
@@ -220,6 +263,7 @@ public class AuthController : ControllerBase
 
 }
 
+// Model for handling login request data
 // Model untuk menangani data request login
 public class LoginRequest
 {

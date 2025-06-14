@@ -32,9 +32,16 @@ namespace AspApi.Services
 
     public SysToken GetTokenInfo(string accesstoken, string refreshtoken = "")
     {
-        return _context.SysTokens?
-            .FirstOrDefault(x =>
-                x.AccessToken == accesstoken && (string.IsNullOrEmpty(refreshtoken) || x.RefreshToken == refreshtoken))!;
+        /* if (! string.IsNullOrEmpty(refreshtoken))
+        { */
+          // Console.WriteLine("GetTokenInfo : " + accesstoken + " | " + refreshtoken);
+          return _context.SysTokens?
+              .FirstOrDefault(x =>
+                  x.AccessToken == accesstoken && (string.IsNullOrEmpty(refreshtoken) || x.RefreshToken == refreshtoken))!;
+   /*      } else {
+          Console.WriteLine("GetTokenInfo : [" + accesstoken + " ] ");
+          return _context.SysTokens?.FirstOrDefault(x => x.AccessToken == accesstoken)!;
+        } */
     }    
 
     public bool IsTokenValid(string accesstoken, string refreshtoken)
