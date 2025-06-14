@@ -1,0 +1,56 @@
+﻿version: '3.8'
+
+services:
+  aspapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: my-aspapi:dev
+    expose:
+      - "8080"    
+    ports:
+      - "32769:8080" # mapping ke port yang di-EXPOSE di Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    depends_on:
+      - db
+    networks:
+      - appnet
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/certs:/etc/nginx/certs
+    depends_on:
+      - aspapi
+    networks:
+      - appnet
+    restart: unless-stopped
+
+  db:
+    image: postgres:16
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: postgre
+      POSTGRES_PASSWORD: Manager
+      POSTGRES_DB: mydb 
+    ports:
+      - "5434:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    networks:
+      - appnet
+    restart: unless-stopped
+
+networks:
+  appnet:
+    driver: bridge
+
+volumes:
+  postgres_data:

@@ -3,10 +3,14 @@ bin/
 obj/
 out/
 
-# Experumental 
+#Database files
+postgres_data/
+
+# Experimental 
 Resources/Lang/
 Gateways/Translator/
 Helpers/JsonMessageLocalizer.cs
+nginx/
 
 # User-specific files
 *.user

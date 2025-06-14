@@ -124,7 +124,7 @@ public class AuthController : ControllerBase
         string bearerToken = HttpContext.Request.Headers["Authorization"]!;
         string token = bearerToken!.Replace("Bearer ", "").Trim();
         var tokenInfo = _tokenservice.GetTokenInfo(token);
-        Console.WriteLine("Logout token : " + token);
+        //Console.WriteLine("Logout token : " + token);
         if (tokenInfo != null) 
         {
             _tokenservice.DisactivateToken(tokenInfo);
@@ -162,7 +162,7 @@ public class AuthController : ControllerBase
             if (tokenInfo != null) {
                 // Catatan : Sebaiknya dibuatkan helper untuk membandingkan field timestamp dengan DateTime.Now
                 if (tokenInfo.ExpireDate < DateTime.Now) {  
-                    _tokenservice.DisactivateToken(tokenInfo);
+                    if (! _tokenservice.DisactivateToken(tokenInfo)) Console.WriteLine("Failed to disactivate token in database");
                     Console.WriteLine("access token and refresh token expired, please re login");
                     return BadRequest(new { success = false, message = (_lang.CurrentLang == "id") ? 
                                 "Access and refresh token kadaluarsa, silahkan login kembali" : 

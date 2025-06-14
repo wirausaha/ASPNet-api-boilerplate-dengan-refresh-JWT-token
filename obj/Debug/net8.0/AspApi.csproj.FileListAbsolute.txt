@@ -2,7 +2,6 @@ D:\BelajarAPIAsp\AspApi\bin\Debug\net8.0\appsettings.Development.json
 D:\BelajarAPIAsp\AspApi\bin\Debug\net8.0\appsettings.json
 D:\BelajarAPIAsp\AspApi\bin\Debug\net8.0\Resources\Lang\en.json
 D:\BelajarAPIAsp\AspApi\bin\Debug\net8.0\Resources\Lang\id.json
-D:\BelajarAPIAsp\AspApi\bin\Debug\net8.0\AspApi.staticwebassets.endpoints.json
 D:\BelajarAPIAsp\AspApi\bin\Debug\net8.0\AspApi.exe
 D:\BelajarAPIAsp\AspApi\bin\Debug\net8.0\AspApi.deps.json
 D:\BelajarAPIAsp\AspApi\bin\Debug\net8.0\AspApi.runtimeconfig.json
@@ -105,9 +104,7 @@ D:\BelajarAPIAsp\AspApi\obj\Debug\net8.0\AspApi.sourcelink.json
 D:\BelajarAPIAsp\AspApi\obj\Debug\net8.0\scopedcss\bundle\AspApi.styles.css
 D:\BelajarAPIAsp\AspApi\obj\Debug\net8.0\staticwebassets.build.json
 D:\BelajarAPIAsp\AspApi\obj\Debug\net8.0\staticwebassets.development.json
-D:\BelajarAPIAsp\AspApi\obj\Debug\net8.0\staticwebassets.build.endpoints.json
 D:\BelajarAPIAsp\AspApi\obj\Debug\net8.0\staticwebassets\msbuild.AspApi.Microsoft.AspNetCore.StaticWebAssets.props
-D:\BelajarAPIAsp\AspApi\obj\Debug\net8.0\staticwebassets\msbuild.AspApi.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
 D:\BelajarAPIAsp\AspApi\obj\Debug\net8.0\staticwebassets\msbuild.build.AspApi.props
 D:\BelajarAPIAsp\AspApi\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.AspApi.props
 D:\BelajarAPIAsp\AspApi\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.AspApi.props
@@ -118,3 +115,6 @@ D:\BelajarAPIAsp\AspApi\obj\Debug\net8.0\refint\AspApi.dll
 D:\BelajarAPIAsp\AspApi\obj\Debug\net8.0\AspApi.pdb
 D:\BelajarAPIAsp\AspApi\obj\Debug\net8.0\AspApi.genruntimeconfig.cache
 D:\BelajarAPIAsp\AspApi\obj\Debug\net8.0\ref\AspApi.dll
+D:\BelajarAPIAsp\AspApi\bin\Debug\net8.0\AspApi.staticwebassets.endpoints.json
+D:\BelajarAPIAsp\AspApi\obj\Debug\net8.0\staticwebassets.build.endpoints.json
+D:\BelajarAPIAsp\AspApi\obj\Debug\net8.0\staticwebassets\msbuild.AspApi.Microsoft.AspNetCore.StaticWebAssetEndpoints.props

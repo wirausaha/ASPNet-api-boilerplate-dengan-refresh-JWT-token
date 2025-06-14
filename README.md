@@ -15,14 +15,19 @@ Register part is finished, you can try it using postman. To change the language 
 
 Login, Logout & Refresh Token completed.
 
-Untuk mencoba menjalankan aplikasi :
+To try running the application:
 
-1. Pertama salin project ke lokal, 
-2. Pada folder project, dari terminal windows eksekusi 
-    - dotnet restore
-    untuk mendownload semua paket yang dibutuhkan
-3. eksekusi : dotnet watch atau dotnet run
-4. Pengetesan bisa dilakukan menggunakan aplkasi Postman
+1. First copy the project to local,
+2. In the project folder, from the windows terminal execute : dotnet restore 
+    to download all the required packages
+3. With pgAdmin (if using PostgreSQL): create a database mydb and execute SQL create table in database.txt
+4. Edit appsetting.json when needed to change database connection string
+5. Edit program.cs if you change database connection string variabel
+6. execute without docker: dotnet watch or dotnet run
+   with docker please see and edit: docker-compose.yml
+7. Testing can be done using the Postman application or frontend app I will upload next
+
+
 
 
 
