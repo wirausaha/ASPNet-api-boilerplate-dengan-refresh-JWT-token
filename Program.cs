@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using AspApi.DTOServices;
+using Microsoft.AspNetCore.Http.Features;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -63,6 +65,19 @@ builder.Services.AddScoped<ValidasiTokenService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ILanguageProvider, LanguageProvider>();
 
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        builder => builder.WithOrigins("http://localhost:3000")
+                          .AllowAnyMethod()
+                          .AllowAnyHeader());
+});
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 10 * 1024 * 1024; // Maks ukuran 10MB
+});
 
 var app = builder.Build();
 
@@ -87,9 +102,15 @@ app.Use(async (context, next) =>
     await next();
 });
 
+
+app.UseCors("AllowFrontend");
+
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.UseStaticFiles();
+
 
 app.Run();

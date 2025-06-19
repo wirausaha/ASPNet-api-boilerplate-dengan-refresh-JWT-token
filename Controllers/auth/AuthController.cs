@@ -93,9 +93,10 @@ public class AuthController : ControllerBase
 
         // for testing refreshtoken is given only a few minutes here using 30 minutes or 1 hour if remember me
         // untuk pengetesan refreshtoken diberikan hanya beberapa menit disini menggunakan 30 menit atau 1 jam kalau remember me
-        var expiresIn = request.rememberme ? TimeSpan.FromHours(1) : TimeSpan.FromMinutes(30);
+        
+        //var expiresIn = request.rememberme ? TimeSpan.FromHours(1) : TimeSpan.FromMinutes(30);
 
-        //var expiresIn = request.rememberme ? TimeSpan.FromDays(14) : TimeSpan.FromDays(7);
+        var expiresIn = request.rememberme ? TimeSpan.FromDays(14) : TimeSpan.FromDays(1);
 
         var sysToken = new SysToken
         {
@@ -188,7 +189,10 @@ public class AuthController : ControllerBase
 
                 // for testing use a few minutes, here use 30 minutes or 1 hour if remember me
                 // untuk pengetesan gunakan beberapa menit, disini menggunakan 30 menit atau 1 jam kalau remember me
-                var expiresIn = request.rememberme ? TimeSpan.FromHours(1) : TimeSpan.FromMinutes(30);
+
+                //var expiresIn = request.rememberme ? TimeSpan.FromHours(1) : TimeSpan.FromMinutes(30);
+
+                var expiresIn = request.rememberme ? TimeSpan.FromDays(14) : TimeSpan.FromDays(1);
                 var newSysToken = new SysToken
                 {
                     AccessToken = newToken,
@@ -242,9 +246,10 @@ public class AuthController : ControllerBase
 
         // for testing use a few minutes, here use 1 minutes
         // untuk pengetesan gunakan beberapa menit, disini menggunakan1 menit
-        var expiresIn = rememberme ? TimeSpan.FromMinutes(1) : TimeSpan.FromMinutes(1);
+        
+        //var expiresIn = rememberme ? TimeSpan.FromMinutes(1) : TimeSpan.FromMinutes(1);
 
-        //var expiresIn = rememberme ? TimeSpan.FromDays(7) : TimeSpan.FromMinutes(15);
+        var expiresIn = rememberme ? TimeSpan.FromDays(1) : TimeSpan.FromHours(12);
         var token = new JwtSecurityToken(
             issuer: _config["Jwt:Issuer"],
             audience: _config["Jwt:Audience"],

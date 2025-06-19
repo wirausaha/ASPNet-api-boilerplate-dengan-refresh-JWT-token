@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AspApi.Dtos;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AspApi.Models
@@ -47,10 +48,11 @@ namespace AspApi.Models
         // [Required(ErrorMessage = "Date of Birth is required")]
         //[DataType(DataType.Date, ErrorMessage = "Invalid date format")]
         //[CustomValidation(typeof(User), nameof(ValidateAge))]
-        public DateTime DateOfBirth { get; set; }
+        public DateTime? DateOfBirth { get; set; }
 
         [StringLength(40, ErrorMessage = "Alamat maksimal 40 karakter")]
         public string? Address { get; set; } = "";
+        public string? Address2 { get; set; } = "";
 
         [StringLength(20, ErrorMessage = "Propinsi maksimal 20 karakter")]
         public string? Province { get; set; } = "";
@@ -67,7 +69,7 @@ namespace AspApi.Models
 
         public string? Avatar200x200 { get; set; } = "";
         public string? BaseLocale { get; set; } = "id-ID";
-        public string? BaseLanguage { get; set; } = "id";
+        public string? BaseLanguage { get; set; } = "id";        
 
         public int? IsActive { get; set; }
         public int? IsEmailConfirmed { get; set; }
@@ -76,6 +78,7 @@ namespace AspApi.Models
         public int TermsAgrement { get; set; } = 1;
 
         public int IsRoot { get; set; } = 0;
+        public string? UserRole { get; set; } = "User";
 
         public string? MembershipId { get; set; } = "000";
 
@@ -90,6 +93,7 @@ namespace AspApi.Models
       public int draw { get; set; } = 0;
       public int recordsTotal { get; set; } = 0;
       public int recordsFiltered { get; set; } = 0;
-      public List<User> data { get; set; } = new List<User>();
+      public List<UserDataDtos> data { get; set; } = new List<UserDataDtos>();
     }
+
 }

@@ -1,6 +1,11 @@
 using AspApi.Data;
 using AspApi.Models;
+using AspApi.Dtos;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Data;
+using System.Linq;
+
 
 namespace AspApi.Services
 {
@@ -19,6 +24,13 @@ namespace AspApi.Services
       return await (_context?.Users?.CountAsync() ?? Task.FromResult(0));
     }
 
+    public int Count()
+    {
+      var intRetval = _context.Users.Count();
+      return intRetval;
+    }    
+
+    // Mengambil daftar user
     public IList<User> GetUsers()
     {
       if (_context.Users != null)
@@ -28,14 +40,78 @@ namespace AspApi.Services
       return new List<User>();
     }
 
-    public User GetUser(string usernameOrEmail)
+    // Mengambil 1 user berdasarkan username atau email
+    public User GetUser(string usernameOrEmail, bool forUpdate = true)
     {
       if (_context.Users != null)
       {
-        return _context.Users.FirstOrDefault(x => x.IsActive == 1 && (x.UserName == usernameOrEmail || x.Email == usernameOrEmail)) ?? new User();
+        if (forUpdate)
+        {
+          // Untuk update, ambil user yang aktif
+          return _context.Users.FirstOrDefault(x => x.IsActive == 1 && (x.UserName == usernameOrEmail || x.Email == usernameOrEmail)) ?? new User();
+        }
+        return _context.Users.AsNoTracking().FirstOrDefault(x => x.IsActive == 1 && (x.UserName == usernameOrEmail || x.Email == usernameOrEmail)) ?? new User();
       }
       return new User();
     }
+
+
+    /* ==============================================================
+    | GetUserWithPagination()
+    | Mengambil daftar user dengan pagination untuk DataTables menggunakan Dapper
+    | 
+    =================================================== */    
+    public UserDataTables GetUserWithPagination(int draw, 
+              int start, int length, string? filter = null, DateTime? lastUpdate = null) {
+        var retList = new UserDataTables(){
+              draw = draw,
+              recordsTotal = 0,
+              recordsFiltered = 0,
+              data = new List<UserDataDtos>()
+          };  
+        var userList = _context.Users
+            .Where(u => string.IsNullOrEmpty(filter) || u.UserName!.Contains(filter))
+            .AsNoTracking()
+            .OrderBy(u => u.UserName)
+            .Skip(start)
+            .Take(length)
+            .Select(u => new UserDataDtos(
+                u.UserId!, u.UserName!, u.Email!, u.PhoneNumber!,
+                u.FirstName!, u.LastName!, u.DateOfBirth!, u.Address!,
+                u.Address2!, u.Province!, u.City!, u.ZipCode!, u.Avatar200x200!, u.UserRole!,
+                u.IsActive, u.IsEmailConfirmed, u.IsPhoneConfirmed
+            ))
+            .ToList();
+
+
+        int totalRecords = _context.Users.Count();
+        int filteredRecords = _context.Users
+            .Where(u => string.IsNullOrEmpty(filter) || u.UserName!.Contains(filter))
+            .Count();
+
+        retList.recordsTotal = totalRecords;
+        retList.recordsFiltered = filteredRecords;
+        retList.data = userList;
+          //Console.WriteLine("Jumlah data: " + result.Count);            
+        return retList;
+      
+    }        
+
+    public UserDataDtos GetUserDataDtos(string userName) {
+        if (_context.Users == null || string.IsNullOrEmpty(userName)) return new UserDataDtos();
+        var userdataDtos = _context.Users
+            .Where(u => u.UserName! == userName)
+            .AsNoTracking()
+            .Select(u => new UserDataDtos(
+                u.UserId!, u.UserName!, u.Email!, u.PhoneNumber!,
+                u.FirstName!, u.LastName!, u.DateOfBirth!, u.Address!,
+                u.Address2!, u.Province!, u.City!, u.ZipCode!, u.Avatar200x200!, u.UserRole!,
+                u.IsActive, u.IsEmailConfirmed, u.IsPhoneConfirmed
+            )).FirstOrDefault();
+
+        return userdataDtos!;
+      
+    }        
 
 
     public string getFullName(string firstname, string LastName)
@@ -72,12 +148,10 @@ namespace AspApi.Services
 
     public Boolean EmailExist(string email)
     {
-      //Console.WriteLine("User Service : Cek Email Exist ");
       return _context?.Users?.Any(x => x.Email == email) ?? false;
     }
 
-    // Periksa apakah username atau email sudah ada
-    public Boolean UsernameAndEmailExist(string userName, string email)
+    public Boolean UsernameOrEmailExist(string userName, string email)
     {
       return _context?.Users?.Any(x => x.UserName == userName || x.Email == email) ?? false;
     }
@@ -133,13 +207,50 @@ namespace AspApi.Services
         _context.Database.ExecuteSqlRaw(sql, hashedPassword, userName);        
     }
 
-    public async Task UpdateAsync(User user)
+    public async Task<UserDataDtos> AddAsync(User user)
+    {
+      if (_context.Users != null)
+      {
+        if (! string.IsNullOrEmpty(user.Password))
+        {
+          user.Password = HashPassword(user.Password!);
+          _context.Users.Add(user);
+          await _context.SaveChangesAsync();
+          var userdataDtos = await _context.Users
+              .Where(u => u.UserName! == user.UserName)
+              .AsNoTracking()
+              .Select(u => new UserDataDtos(
+                  u.UserId!, u.UserName!, u.Email!, u.PhoneNumber!,
+                  u.FirstName!, u.LastName!, u.DateOfBirth!, u.Address!,
+                  u.Address2!, u.Province!, u.City!, u.ZipCode!, u.Avatar200x200!, u.UserRole!,
+                  u.IsActive, u.IsEmailConfirmed, u.IsPhoneConfirmed
+              )).FirstOrDefaultAsync();
+          return userdataDtos!;
+        }
+      }
+      return new UserDataDtos();
+    }
+
+    public async Task<UserDataDtos> UpdateAsync(User user)
     {
       //Console.WriteLine("User Update service");
       if (_context.Users != null)
       {
         _context.Users.Update(user);
         await _context.SaveChangesAsync();
+
+        var userdataDtos = await _context.Users
+            .Where(u => u.UserName! == user.UserName)
+            .AsNoTracking()
+            .Select(u => new UserDataDtos(
+                u.UserId!, u.UserName!, u.Email!, u.PhoneNumber!,
+                u.FirstName!, u.LastName!, u.DateOfBirth!, u.Address!,
+                u.Address2!, u.Province!, u.City!, u.ZipCode!, u.Avatar200x200!, u.UserRole!,
+                u.IsActive, u.IsEmailConfirmed, u.IsPhoneConfirmed
+            )).FirstOrDefaultAsync();
+        return userdataDtos!;
+      } else {
+        return new UserDataDtos();
       }
     }
 
@@ -149,8 +260,9 @@ namespace AspApi.Services
       {
         User user = _context.Users.Where(a => a.UserName == userName).FirstOrDefault()!;
         if (user != null) {
-          user.IsActive = 0;
-          _context.Users.Update(user);
+          _context.Users.Remove(user);
+          //user.IsActive = 0;
+          //_context.Users.Update(user);
           await _context.SaveChangesAsync();
         }
       }

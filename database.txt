@@ -20,6 +20,7 @@ CREATE TABLE "users" (
   "DateOfBirth" DATE,
   "PhoneNumber" VARCHAR(20),
   "Address" VARCHAR(40),
+  "Address2" VARCHAR(40),
   "Province" VARCHAR(20),
   "City" VARCHAR(20),
   "ZipCode" VARCHAR(6),

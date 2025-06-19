@@ -81,7 +81,7 @@ public class RegisterController : ControllerBase
                 "Usernames can only contain letters and numbers" }    );
         }        
 
-        var isValid = !_userservice.UsernameAndEmailExist(userName, email);
+        var isValid = !_userservice.UsernameOrEmailExist(userName, email);
         if (! isValid) {
             return BadRequest(new { success = false, message = (_lang.CurrentLang == "id") ?
                         "Username atau email sudah ada di database" : 
@@ -90,13 +90,16 @@ public class RegisterController : ControllerBase
         // If validation passes, proceed to create a new user
         // Jika semua validasi berhasil, lanjutkan untuk membuat user baru
         User UpdateUser = new User();
+        Random random = new Random();
+        int randomNumber = random.Next(1, 10); // dapatkan angka acak antara 1 dan 10
         var TokenUserName = userName;        
         UpdateUser.IsActive = 1;
         UpdateUser.UserId = RandomStringGenerator.GenerateRandomString(20);
         UpdateUser.UserName = userName;
         UpdateUser.Email = email;
         UpdateUser.Password = passWord;
-        UpdateUser.TermsAgrement = request.termsagrement ? 1 : 0; // set TermsAgrement sesuai dengan rememberme
+        UpdateUser.Avatar200x200 = randomNumber.ToString() + ".jpg"; 
+        UpdateUser.TermsAgrement = request.termsagrement ? 1 : 0; 
         _userservice.AddUser(UpdateUser);
         return Ok(new { success = true, message = (_lang.CurrentLang == "id") ? 
                     "register berhasil, silahkan login" : "" });
