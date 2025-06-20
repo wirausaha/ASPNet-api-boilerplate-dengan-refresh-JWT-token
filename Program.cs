@@ -81,10 +81,16 @@ builder.Services.AddScoped<ILanguageProvider, LanguageProvider>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
-        builder => builder.WithOrigins("http://localhost:3000")
+        builder => builder.WithOrigins(
+                    "http://localhost:3000", 
+                    "https://aspnet-api-boilerplate-dengan-refresh-jwt-token-production.up.railway.app"
+                            )
                           .AllowAnyMethod()
                           .AllowAnyHeader());
+
+
 });
+
 
 builder.Services.Configure<FormOptions>(options =>
 {
