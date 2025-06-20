@@ -1,6 +1,5 @@
 using AspApi.Data;
 using AspApi.Services;
-using AspApi.Gateways.Translator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
