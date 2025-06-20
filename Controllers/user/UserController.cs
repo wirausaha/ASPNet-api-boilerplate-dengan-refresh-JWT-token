@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 
 [Route("api/user")]
 [ApiController]
-[Authorize]
+//[Authorize]
 public class UserController : ControllerBase
 {
     private readonly UserService _userService;

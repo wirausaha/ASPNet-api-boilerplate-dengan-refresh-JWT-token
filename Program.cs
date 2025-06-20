@@ -90,12 +90,18 @@ builder.Services.Configure<FormOptions>(options =>
     options.MultipartBodyLengthLimit = 10 * 1024 * 1024; // Maks ukuran 10MB
 });
 
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+});
+
 var app = builder.Build();
 
 /*============= Khusus Railway, kalau bukan di remark ====== */
 // Bind ke port dari Railway / Render / Fly.io
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 app.Urls.Add($"http://*:{port}");
+
 
 // Configure the HTTP request pipeline.
 // Konfigurasi pipeline permintaan HTTP.
@@ -129,5 +135,7 @@ app.UseStaticFiles();
 
 // Routing sederhana
 app.MapGet("/", () => "API ASP.NET Core kamu sudah jalan!");
+app.MapGet("/ping", () => "pong");
+
 
 app.Run();
