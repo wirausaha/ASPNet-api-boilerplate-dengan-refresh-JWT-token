@@ -56,6 +56,8 @@ public class AuthController : ControllerBase
         
         //var expiresIn = request.rememberme ? TimeSpan.FromHours(1) : TimeSpan.FromMinutes(30);
 
+        Console.WriteLine("Username : " + request.username);
+        Console.WriteLine("Password : " + request.password);
         var expiresIn = request.rememberme ? TimeSpan.FromDays(14) : TimeSpan.FromDays(1);
 
         var sysToken = new SysToken
