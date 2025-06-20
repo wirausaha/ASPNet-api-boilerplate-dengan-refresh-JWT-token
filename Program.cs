@@ -35,12 +35,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-/*=========
-| Modifikasi untuk konek ke Railway
-=========== */
-var connectionString = builder.Configuration.GetConnectionString("Default") 
-                      ?? Environment.GetEnvironmentVariable("ConnectionStrings__Default");
-
 
 
 /*==========================================
@@ -58,6 +52,13 @@ var connectionString = builder.Configuration.GetConnectionString("Default")
 ==========================================*/ 
 // Kalau tidak menggunakan Railway ambil dari appsetting.json
 //connectionString = (builder.Configuration.GetConnectionString("PostgreDocker")); 
+/*=========
+| Modifikasi untuk konek ke Railway
+=========== */
+var connectionString = builder.Configuration.GetConnectionString("Default") 
+                      ?? Environment.GetEnvironmentVariable("ConnectionStrings__Default");
+
+
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseNpgsql(connectionString));
 
