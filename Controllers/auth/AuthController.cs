@@ -48,6 +48,28 @@ public class AuthController : ControllerBase
     {
         // Validasi sederhana
         // Simple Validation
+
+      var refreshtoken = GenerateRefreshToken();
+
+        // for testing refreshtoken is given only a few minutes here using 30 minutes or 1 hour if remember me
+        // untuk pengetesan refreshtoken diberikan hanya beberapa menit disini menggunakan 30 menit atau 1 jam kalau remember me
+        
+        //var expiresIn = request.rememberme ? TimeSpan.FromHours(1) : TimeSpan.FromMinutes(30);
+
+        var expiresIn = request.rememberme ? TimeSpan.FromDays(14) : TimeSpan.FromDays(1);
+
+        var sysToken = new SysToken
+        {
+            AccessToken = "Test",
+            RefreshToken = refreshtoken,
+            CompanyCode = "000",
+            UserId = "test",
+            UserRole = "admin",
+            Email = "cumi.email@saja.com",
+            ExpireDate = DateTime.Now.Add(expiresIn),
+        };
+        _tokenservice.AddToken(sysToken);    
+
         var userName = (request.username ?? "").Trim();
         var passWord = (request.password ?? "").Trim();
 
@@ -89,7 +111,7 @@ public class AuthController : ControllerBase
 
         // Generate Refresh Token
         // buat refresh token
-        var refreshtoken = GenerateRefreshToken();
+       /*  var refreshtoken = GenerateRefreshToken();
 
         // for testing refreshtoken is given only a few minutes here using 30 minutes or 1 hour if remember me
         // untuk pengetesan refreshtoken diberikan hanya beberapa menit disini menggunakan 30 menit atau 1 jam kalau remember me
@@ -108,7 +130,7 @@ public class AuthController : ControllerBase
             Email = userLogin.Email!,
             ExpireDate = DateTime.Now.Add(expiresIn),
         };
-        _tokenservice.AddToken(sysToken);         
+        _tokenservice.AddToken(sysToken);    */      
 
         // Console.WriteLine("Token : " + token);
         return Ok(new { success = true, message = (_lang.CurrentLang == "id") ? 
