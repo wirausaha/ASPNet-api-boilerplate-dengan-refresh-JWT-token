@@ -42,7 +42,7 @@ var connectionString = builder.Configuration.GetConnectionString("Default")
                       ?? Environment.GetEnvironmentVariable("ConnectionStrings__Default");
 
 
-
+ 
 /*==========================================
 | ini untuk koneksi ke database MySQL     |
 | This is for MySQL database connection   |
