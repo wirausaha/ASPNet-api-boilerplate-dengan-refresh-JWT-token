@@ -10,7 +10,7 @@ namespace AspApi.Dtos
         public string? PhoneNumber { get; set; } = "";
         public string? FirstName { get; set; } = "";
         public string? LastName { get; set; } = "";
-        public DateTime? DateOfBirth { get; set; }
+        public DateOnly? DateOfBirth { get; set; }
         public string? Address { get; set; } = "";
         public string? Address2 { get; set; } = "";
         public string? Province { get; set; } = "";
@@ -27,7 +27,7 @@ namespace AspApi.Dtos
 
         public UserDataDtos(string userid, string username, string email, 
                             string phoneNumber, string firstName, string lastName,
-                            DateTime? dateOfBirth, string address, string address2,
+                            DateOnly? dateOfBirth, string address, string address2,
                             string province, string city, string zipCode,
                             string avatar200x200, string userrole, int? isActive = 1,
                             int? isEmailConfirmed = 0, int? isPhoneConfirmed = 0) 

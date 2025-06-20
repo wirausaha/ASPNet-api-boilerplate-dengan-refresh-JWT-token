@@ -48,7 +48,7 @@ namespace AspApi.Models
         // [Required(ErrorMessage = "Date of Birth is required")]
         //[DataType(DataType.Date, ErrorMessage = "Invalid date format")]
         //[CustomValidation(typeof(User), nameof(ValidateAge))]
-        public DateTime? DateOfBirth { get; set; }
+        public DateOnly? DateOfBirth { get; set; }
 
         [StringLength(40, ErrorMessage = "Alamat maksimal 40 karakter")]
         public string? Address { get; set; } = "";

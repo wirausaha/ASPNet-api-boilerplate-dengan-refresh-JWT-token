@@ -63,12 +63,13 @@ namespace AspApi.Services
     =================================================== */    
     public UserDataTables GetUserWithPagination(int draw, 
               int start, int length, string? filter = null, DateTime? lastUpdate = null) {
+
         var retList = new UserDataTables(){
               draw = draw,
               recordsTotal = 0,
               recordsFiltered = 0,
               data = new List<UserDataDtos>()
-          };  
+          };
         var userList = _context.Users
             .Where(u => string.IsNullOrEmpty(filter) || u.UserName!.Contains(filter))
             .AsNoTracking()

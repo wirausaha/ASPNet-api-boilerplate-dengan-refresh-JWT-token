@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
@@ -6,10 +7,12 @@ using AspApi.Services;
 using AspApi.Helpers;
 using AspApi.DTOServices;
 using AspApi.Utilities;
+using Microsoft.AspNetCore.Authorization;
 
 
 [Route("api/user")]
 [ApiController]
+[Authorize]
 public class UserController : ControllerBase
 {
     private readonly UserService _userService;
@@ -28,13 +31,6 @@ public class UserController : ControllerBase
     [HttpGet("count")]
     public async Task<IActionResult> Count()
     {
-        var userClaims = HttpContext.User;        
-        if (! _validasiTokenService.TokenValid(userClaims))
-        {
-            Console.WriteLine(DateTime.Now.ToString() + " api/user/count Unauthorized");
-            return Unauthorized(new { success = false, message = (_lang.CurrentLang == "id") ? 
-                                        "Anda tidak berhak" : "Unauthorized" });
-        }
         int count = await _userService.CountAsync();
         return Ok(new { success = true, count });
     }
@@ -43,15 +39,10 @@ public class UserController : ControllerBase
     public IActionResult GetUserWithPagination(int draw = 0, int page = 1, 
             int limit = 10, string? filter = null) {
 
+        Console.WriteLine("Filter :", filter);
         page = page < 1 ? 0 : page;
         limit = limit < 1 ? 1 : limit;
-        var userClaims = HttpContext.User;        
-        if (! _validasiTokenService.TokenValid(userClaims))
-        {
-            Console.WriteLine(DateTime.Now.ToString() + " api/user/getuserswithpagination() Unauthorized");
-            return Unauthorized(new { success = false, message = (_lang.CurrentLang == "id") ? 
-                                        "Anda tidak berhak" : "Unauthorized" });
-        }
+
         var userforDataTable = _userService.GetUserWithPagination(draw, (page-1) * limit, limit, filter);                    
         return Ok(new { success = true, userlist = userforDataTable });
     }
@@ -61,13 +52,6 @@ public class UserController : ControllerBase
     public IActionResult UserExists(string userName)
     {
         Console.WriteLine("UserExists: " + userName);
-        var userClaims = HttpContext.User;        
-        if (! _validasiTokenService.TokenValid(userClaims))
-        {
-            Console.WriteLine(DateTime.Now.ToString() + " api/user/userexists() Unauthorized");
-            return Unauthorized(new { success = false, message = (_lang.CurrentLang == "id") ? 
-                                        "Anda tidak berhak" : "Unauthorized" });
-        }
 
         userName = (userName ?? "").Trim();
         if (string.IsNullOrEmpty(userName)) {
@@ -82,12 +66,13 @@ public class UserController : ControllerBase
     public IActionResult EmailExists(string email)
     {
         var userClaims = HttpContext.User;        
-        if (! _validasiTokenService.TokenValid(userClaims))
+
+       /*  if (! _validasiTokenService.TokenValid(userClaims))
         {
             Console.WriteLine(DateTime.Now.ToString() + " api/user/emailexists() Unauthorized");
             return Unauthorized(new { success = false, message = (_lang.CurrentLang == "id") ? 
                                         "Anda tidak berhak" : "Unauthorized" });
-        }
+        } */
 
         email = (email ?? "").Trim();
         if (string.IsNullOrEmpty(email)) {
@@ -108,14 +93,6 @@ public class UserController : ControllerBase
     public IActionResult UsernameOrEmailExists([FromBody] UsernameOrEmailExistsRequest request)
     {
         Console.WriteLine("Cek username dan email");
-        var userClaims = HttpContext.User;        
-        if (! _validasiTokenService.TokenValid(userClaims))
-        {
-            Console.WriteLine(DateTime.Now.ToString() + " api/user/usernameoremailexists() Unauthorized");
-            return Unauthorized(new { success = false, message = (_lang.CurrentLang == "id") ? 
-                                        "Anda tidak berhak" : "Unauthorized" });
-        }
-
         request.email = (request.email ?? "").Trim();
         request.userName = (request.userName ?? "").Trim();
         if (string.IsNullOrEmpty(request.email) || string.IsNullOrEmpty(request.userName)) {
@@ -126,10 +103,24 @@ public class UserController : ControllerBase
         return Ok(new { success = true, exists = dataExists });
     }   
 
+    [HttpGet("userrole")]
+    public IActionResult UserRole()
+    {
+
+        List<string> aRole = new List<string> { "Superuser", 
+                "Data Administrator", 
+                "User Administrator", 
+                "Operator", "Chasier",
+                "Office boy" };
+        return Ok(new { success = true, role = aRole });
+    }
+
+
      public class UserUpdateData {
         public string? userName { get; set; } = "";
         public string? email  {get; set;} = "";
         public string? password { get; set; } = "";
+        public DateOnly? dateOfBirth {get; set;} 
         public string? firstName { get; set; } = "";
         public string? lastName { get; set; } = "";
         public string? address { get; set; } = "";
@@ -137,8 +128,7 @@ public class UserController : ControllerBase
         public string? province { get; set; } = "";
         public string? city { get; set; } = "";
         public string? zipCode { get; set; } = "";
-//        public string? Avatar200x200 { get; set; } = "";        
-        public string? userRole { get; set; } = "User";        
+        public string? userRole { get; set; } = "Operator";        
         public int? isActive { get; set; }
         public IFormFile? avatarFile { get; set; } 
 
@@ -148,14 +138,6 @@ public class UserController : ControllerBase
     public async Task<IActionResult> AddNewUser([FromForm] UserUpdateData userData)
     {
         Console.WriteLine("Update AddNewUser(): " + userData.userName);
-        var userClaims = HttpContext.User;        
-        if (! _validasiTokenService.TokenValid(userClaims))
-        {
-            Console.WriteLine(DateTime.Now.ToString() + " api/user/getuserswithpagination() Unauthorized");
-            return Unauthorized(new { success = false, message = (_lang.CurrentLang == "id") ? 
-                                        "Anda tidak berhak" : "Unauthorized" });
-        }
-
         userData.userName = userData.userName.Truncate(32);
         userData.email = userData.email.Truncate(32);
         userData.password = userData.password.Truncate(32);
@@ -256,6 +238,7 @@ public class UserController : ControllerBase
         UpdateUser.Province = userData.province.Truncate(20);
         UpdateUser.City = userData.city.Truncate(20);
         UpdateUser.ZipCode = userData.zipCode.Truncate(6);
+        UpdateUser.DateOfBirth = userData.dateOfBirth ?? DateOnly.FromDateTime(DateTime.Today);
         UpdateUser.UserRole = userData.userRole;
         UpdateUser.IsActive = userData.isActive; 
         UpdateUser.TermsAgrement =  1; 
@@ -266,18 +249,11 @@ public class UserController : ControllerBase
 
     }
 
+
     [HttpPost("updateuser")]
     public async Task<IActionResult> UpdateUser([FromForm] UserUpdateData userData)
     {
         Console.WriteLine("Update UpdateUser(): " + userData.userName);
-        var userClaims = HttpContext.User;        
-        if (! _validasiTokenService.TokenValid(userClaims))
-        {
-            Console.WriteLine(DateTime.Now.ToString() + " api/user/getuserswithpagination() Unauthorized");
-            return Unauthorized(new { success = false, message = (_lang.CurrentLang == "id") ? 
-                                        "Anda tidak berhak" : "Unauthorized" });
-        }
-
         userData.userName = userData.userName.Truncate(32);
         var UpdateUser = _userService.GetUser(userData.userName!, true);
         if (UpdateUser == null || UpdateUser.IsEmpty)
@@ -362,14 +338,6 @@ public class UserController : ControllerBase
     public async Task<IActionResult> DeleteUser([FromBody] UserResetPassword request)
     {
         Console.WriteLine("Delete user: " + request.userName);
-        var userClaims = HttpContext.User;        
-        if (! _validasiTokenService.TokenValid(userClaims))
-        {
-            Console.WriteLine(DateTime.Now.ToString() + " api/user/deleteuser() Unauthorized");
-            return Unauthorized(new { success = false, message = (_lang.CurrentLang == "id") ? 
-                                        "Anda tidak berhak" : "Unauthorized" });
-        }
-
         var DeleteUser = _userService.GetUser(request.userName, false);
         if (DeleteUser == null)
         {
@@ -382,16 +350,9 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("changepassword")]
-    public async Task<IActionResult> ChangePassword([FromBody] UserResetPassword request)
+    public async Task<IActionResult> ChangePassword([FromForm] UserResetPassword request)
     {
         Console.WriteLine("Change password: " + request.userName);
-        var userClaims = HttpContext.User;        
-        if (! _validasiTokenService.TokenValid(userClaims))
-        {
-            Console.WriteLine(DateTime.Now.ToString() + " api/user/changepassword() Unauthorized");
-            return Unauthorized(new { success = false, message = (_lang.CurrentLang == "id") ? 
-                                        "Anda tidak berhak" : "Unauthorized" });
-        }
         
         request.userName = (request.userName ?? "").Trim();
         request.oldPassword = (request.oldPassword ?? "").Trim();
@@ -413,5 +374,25 @@ public class UserController : ControllerBase
         await _userService.UpdateAsync(UpdateUser);
         return Ok(new { success = true, message = (_lang.CurrentLang == "id") ? 
                                         "Perubahan sudah disimpan" : "Password saved" });
+    }
+
+    [HttpPost("overidepassword")]
+    public async Task<IActionResult> OveridePassword([FromForm] UserResetPassword request)
+    {
+        
+        request.userName = (request.userName ?? "").Trim();
+        request.newPassword = (request.newPassword ?? "").Trim();
+
+        var UpdateUser = _userService.GetUser(request.userName, true);
+        if (UpdateUser == null)
+        {
+            return NotFound(new { success = false, message = (_lang.CurrentLang == "id") ?
+                                        "Data user tidak ditemukan" : "User not found" });
+        }
+        UpdateUser.Password = _userService.HashPassword(request.newPassword!);
+        await _userService.UpdateAsync(UpdateUser);
+        return Ok(new { success = true, message = (_lang.CurrentLang == "id") ? 
+                                        "Password sudah disimpan" : "Password saved" });
     }                          
+                              
 }
