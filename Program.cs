@@ -38,11 +38,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 /*=========
 | Modifikasi untuk konek ke Railway
 =========== */
-/* var connectionString = builder.Configuration.GetConnectionString("Default") 
-                      ?? Environment.GetEnvironmentVariable("ConnectionStrings__Default"); */
+var connectionString = builder.Configuration.GetConnectionString("Default") 
+                      ?? Environment.GetEnvironmentVariable("ConnectionStrings__Default");
 
 
- 
+
 /*==========================================
 | ini untuk koneksi ke database MySQL     |
 | This is for MySQL database connection   |
@@ -59,7 +59,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // Kalau tidak menggunakan Railway ambil dari appsetting.json
 //connectionString = (builder.Configuration.GetConnectionString("PostgreDocker")); 
 builder.Services.AddDbContext<DataContext>(options =>
-    options.UseNpgsql("PostgreRailway"));
+    options.UseNpgsql(connectionString));
 
 /* ==== Catatan diatas untuk PostGreSQL ====*/
 
@@ -136,6 +136,6 @@ app.UseStaticFiles();
 // Routing sederhana
 app.MapGet("/", () => "API ASP.NET Core kamu sudah jalan!");
 app.MapGet("/ping", () => "pong");
-//app.MapGet("/debug", () => connectionString ?? "No connection string");
+app.MapGet("/debug", () => connectionString ?? "No connection string");
 
 app.Run();
