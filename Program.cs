@@ -136,6 +136,6 @@ app.UseStaticFiles();
 // Routing sederhana
 app.MapGet("/", () => "API ASP.NET Core kamu sudah jalan!");
 app.MapGet("/ping", () => "pong");
-
+app.MapGet("/debug", () => connectionString ?? "No connection string");
 
 app.Run();
