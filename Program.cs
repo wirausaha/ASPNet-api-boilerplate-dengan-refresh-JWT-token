@@ -38,8 +38,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 /*=========
 | Modifikasi untuk konek ke Railway
 =========== */
-var connectionString = builder.Configuration.GetConnectionString("Default") 
-                      ?? Environment.GetEnvironmentVariable("ConnectionStrings__Default");
+/* var connectionString = builder.Configuration.GetConnectionString("Default") 
+                      ?? Environment.GetEnvironmentVariable("ConnectionStrings__Default"); */
 
 
  
@@ -59,7 +59,7 @@ var connectionString = builder.Configuration.GetConnectionString("Default")
 // Kalau tidak menggunakan Railway ambil dari appsetting.json
 //connectionString = (builder.Configuration.GetConnectionString("PostgreDocker")); 
 builder.Services.AddDbContext<DataContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql("PostgreRailway"));
 
 /* ==== Catatan diatas untuk PostGreSQL ====*/
 
