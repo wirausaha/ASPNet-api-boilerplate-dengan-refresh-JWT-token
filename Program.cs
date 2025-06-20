@@ -36,6 +36,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+/*=========
+| Modifikasi untuk konek ke Railway
+=========== */
+var connectionString = builder.Configuration.GetConnectionString("Default") 
+                      ?? Environment.GetEnvironmentVariable("ConnectionStrings__Default");
+
+
+
 /*==========================================
 | ini untuk koneksi ke database MySQL     |
 | This is for MySQL database connection   |
@@ -49,8 +57,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 | ini untuk koneksi ke database Postgre     |
 | This is for PostgreSQL database connection|
 ==========================================*/ 
+// Kalau tidak menggunakan Railway ambil dari appsetting.json
+//connectionString = (builder.Configuration.GetConnectionString("PostgreDocker")); 
 builder.Services.AddDbContext<DataContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreDocker")));
+    options.UseNpgsql(connectionString));
+
+/* ==== Catatan diatas untuk PostGreSQL ====*/
 
 builder.Services.AddAuthorization();
 
@@ -81,7 +93,10 @@ builder.Services.Configure<FormOptions>(options =>
 
 var app = builder.Build();
 
-
+/*============= Khusus Railway, kalau bukan di remark ====== */
+// Bind ke port dari Railway / Render / Fly.io
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+app.Urls.Add($"http://*:{port}");
 
 // Configure the HTTP request pipeline.
 // Konfigurasi pipeline permintaan HTTP.
@@ -112,5 +127,7 @@ app.UseAuthorization();
 app.MapControllers();
 app.UseStaticFiles();
 
+// Routing sederhana
+app.MapGet("/", () => "API ASP.NET Core kamu sudah jalan!");
 
 app.Run();

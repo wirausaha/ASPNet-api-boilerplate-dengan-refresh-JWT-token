@@ -1,13 +1,11 @@
 # asp-api-boilerplate
-Asp Net boilerplate API to develop API base applications using PostgreSQL database & JWT Token. 
+/*===================================================
+| Asp Net boilerplate API to develop API base applications using PostgreSQL database & JWT Token. 
+| Author : Fajrie R Aradea
+=====================================================*/
+You can replace the database with MySQL / SQLServer / PostgreSQL by changing the connection string and adding the EF Core package for the database engine used.
 
-/* ============================================================
- Documentation is using google translate, I'm sorry if the translation is not accurate. 
-============================================================= */  
-
-You can replace the database with MySQL or SQLServer by changing the connection string and adding the EF Core package for the database engine used.
-
-This application requires 2 tables, namely: users and tbsystoken. The structure of the two tables is in the database.txt file
+This application requires 2 tables, namely: users and tbsystoken. The structure of the two tables is in the database.txt file, or you can use PostgreSQL-Structure.sql
 
 To be able to run the application, first create a database with the database tool, then create the two tables needed with SQL execution.
 
