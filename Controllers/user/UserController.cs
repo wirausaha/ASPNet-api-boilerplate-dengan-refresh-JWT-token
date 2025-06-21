@@ -341,9 +341,8 @@ public class UserController : ControllerBase
 
             if (!response.IsSuccessStatusCode)
             {
-                Console.WriteLine("Not success");
-
                 var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine("Upload failed: " + error);
                 return StatusCode((int)response.StatusCode, $"Upload gagal: {error}");
             }
 
