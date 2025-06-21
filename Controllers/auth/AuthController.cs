@@ -6,16 +6,17 @@
 
  Documentation is using google translate, I'm sorry if the translation is not accurate. 
 ============================================================= */  
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Security.Cryptography;
 using AspApi.Models;
 using AspApi.Services;
 using AspApi.DTOServices;
-using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
+using System.Text;
+using System.Security.Cryptography;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+
+//using Microsoft.AspNetCore.Authentication;
 
 [Route("api/auth")]
 [ApiController]
@@ -154,7 +155,7 @@ public class AuthController : ControllerBase
         {
             _tokenservice.DisactivateToken(tokenInfo);
         }         
-        HttpContext.SignOutAsync(); // 🔥 Hapus session user
+        //HttpContext.SignOutAsync(); // 🔥 Hapus session user
         Console.WriteLine("Logout berhasil");
         return Ok(new { success = true, message = 
             (_lang.CurrentLang == "id") ? "Logout berhasil" : "Logout success" });

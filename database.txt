@@ -28,6 +28,7 @@ CREATE TABLE "users" (
   "BaseLocale" VARCHAR(10) DEFAULT 'id-ID',
   "BaseLanguage" VARCHAR(10) DEFAULT 'id-ID',
   "IsCashier" SMALLINT DEFAULT 0,
+  "UserRole" VARCHAR(32),
   "IsRoot" SMALLINT DEFAULT 1,
   "MustChangePassword" SMALLINT DEFAULT 0,
   "RootUserName" VARCHAR(32),

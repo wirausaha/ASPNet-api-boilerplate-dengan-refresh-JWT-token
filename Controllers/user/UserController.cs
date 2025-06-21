@@ -303,7 +303,7 @@ public class UserController : ControllerBase
             Console.WriteLine("Simpan file");
             using var stream = new FileStream(savePath, FileMode.Create);
             await userData.avatarFile.CopyToAsync(stream);
-            Console.WriteLine($"File disimpan sebagai: {uniqueFileName}");
+            Console.WriteLine($"File disimpan sebagai:{savePath}{uniqueFileName}");
             UpdateUser.Avatar200x200 = "/images/avatars/" + uniqueFileName;
 
             // Simpan nama file ke database kalau perlu            
