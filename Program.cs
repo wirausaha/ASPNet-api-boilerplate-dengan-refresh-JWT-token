@@ -82,7 +82,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
         builder => builder.WithOrigins(
-                    "http://localhost:3000", 
+                    "http://localhost:3000",
+                    "https://localhost:3000", 
                     "https://aspnet-api-boilerplate-dengan-refresh-jwt-token-production.up.railway.app"
                             )
                           .AllowAnyMethod()
@@ -131,13 +132,16 @@ app.Use(async (context, next) =>
 });
 
 
+/* =========================
+| Urutan berikut penting, "katanya"
+=========================== */
+app.UseRouting();
 app.UseCors("AllowFrontend");
-
-
-app.UseAuthentication();
+app.UseAuthentication(); // Kalau pakai auth
 app.UseAuthorization();
-
 app.MapControllers();
+app.MapControllers();
+
 app.UseStaticFiles();
 
 // Routing sederhana
