@@ -302,7 +302,7 @@ public class UserController : ControllerBase
 
             // Buat direktori kalau belum ada
             Console.WriteLine("Mencoba membuat direktori kalau belum ada");
-            Directory.CreateDirectory(Path.GetDirectoryName(savePath)!);
+            //Directory.CreateDirectory(Path.GetDirectoryName(savePath)!);
 
             Console.WriteLine("Simpan file");
             using var stream = new FileStream(savePath, FileMode.Create);
