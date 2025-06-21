@@ -18,14 +18,18 @@ public class UserController : ControllerBase
     private readonly UserService _userService;
     private readonly ILanguageProvider _lang;
     private readonly ValidasiTokenService _validasiTokenService;
+    private readonly IWebHostEnvironment _env;
+
 
     public UserController(UserService userService, 
                 ValidasiTokenService validasiTokenService, 
+                IWebHostEnvironment env,
                 ILanguageProvider lang)
     {
         _userService = userService;
         _validasiTokenService = validasiTokenService;
         _lang = lang;
+        _env = env;
     }
 
     [HttpGet("count")]
@@ -212,7 +216,7 @@ public class UserController : ControllerBase
             }
 
             var uniqueFileName = $"{Guid.NewGuid()}{ext}";
-            var savePath = Path.Combine("wwwroot/images/avatars", uniqueFileName);
+            var savePath = Path.Combine(_env.WebRootPath, "images", "avatars", uniqueFileName);
 
             Directory.CreateDirectory(Path.GetDirectoryName(savePath)!);
 
@@ -294,7 +298,7 @@ public class UserController : ControllerBase
             }
 
             var uniqueFileName = $"{Guid.NewGuid()}{ext}";
-            var savePath = Path.Combine("wwwroot/images/avatars", uniqueFileName);
+            var savePath = Path.Combine(_env.WebRootPath, "images", "avatars", uniqueFileName);
 
             // Buat direktori kalau belum ada
             Console.WriteLine("Mencoba membuat direktori kalau belum ada");
@@ -303,7 +307,7 @@ public class UserController : ControllerBase
             Console.WriteLine("Simpan file");
             using var stream = new FileStream(savePath, FileMode.Create);
             await userData.avatarFile.CopyToAsync(stream);
-            Console.WriteLine($"File disimpan sebagai:{savePath}{uniqueFileName}");
+            Console.WriteLine($"File disimpan sebagai:{savePath}");
             UpdateUser.Avatar200x200 = "/images/avatars/" + uniqueFileName;
 
             // Simpan nama file ke database kalau perlu            
