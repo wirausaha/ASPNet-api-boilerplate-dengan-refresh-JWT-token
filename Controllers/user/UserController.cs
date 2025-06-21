@@ -297,18 +297,48 @@ public class UserController : ControllerBase
             }
 
             var uniqueFileName = $"{Guid.NewGuid()}{ext}";
-            //var savePath = Path.Combine(_env.WebRootPath, "images", "avatars", uniqueFileName);
+
+/*             //var savePath = Path.Combine(_env.WebRootPath, "images", "avatars", uniqueFileName);
             var savePath = Path.Combine("wwwroot", "images", "avatars", uniqueFileName);
 
             // Buat direktori kalau belum ada
             Console.WriteLine("Mencoba membuat direktori kalau belum ada");
-            //Directory.CreateDirectory(Path.GetDirectoryName(savePath)!);
+            //Directory.CreateDirectory(Path.GetDirectoryName(savePath)!); 
 
             Console.WriteLine("Simpan file");
             using var stream = new FileStream(savePath, FileMode.Create);
-            await userData.avatarFile.CopyToAsync(stream);
-            Console.WriteLine($"File disimpan sebagai:{savePath}");
-            UpdateUser.Avatar200x200 = "/images/avatars/" + uniqueFileName;
+            await userData.avatarFile.CopyToAsync(stream); */
+
+            var fileName = Guid.NewGuid() + Path.GetExtension(userData.avatarFile.FileName);
+
+            // Supabase info (sebaiknya simpan di environment variable)
+            var supabaseProjectUrl = "https://utakgxlsrvbttwubnfmm.supabase.co";
+            var supabaseAnonKey = "ragQ5NvYSJKN2qZu1CqpiXFh/xYi8EQwN5/FF4NwmArgCzpl9KUqaXZ2/Ys4HsA1z3QYKEIc8yhgh2grKYC67w==";
+            var bucketName = "avatars";
+
+            var uploadUrl = $"{supabaseProjectUrl}/storage/v1/object/{bucketName}/{fileName}";
+
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", supabaseAnonKey);
+
+            using var content = new MultipartFormDataContent();
+            var streamContent = new StreamContent(userData.avatarFile.OpenReadStream());
+            content.Add(streamContent, "file", fileName);
+
+            var response = await client.PostAsync(uploadUrl, content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                return StatusCode((int)response.StatusCode, $"Upload gagal: {error}");
+            }
+
+            // Supabase akan otomatis menaruh file ke path public (kalau policy SELECT sudah dibuka)
+            var publicUrl = $"{supabaseProjectUrl}/storage/v1/object/public/{bucketName}/{fileName}";            
+
+            Console.WriteLine($"File disimpan sebagai:{publicUrl}");
+            UpdateUser.Avatar200x200 = publicUrl;
 
             // Simpan nama file ke database kalau perlu            
 
