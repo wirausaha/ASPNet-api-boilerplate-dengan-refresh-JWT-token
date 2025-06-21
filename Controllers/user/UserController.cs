@@ -334,7 +334,7 @@ public class UserController : ControllerBase
             using var content = new MultipartFormDataContent();
             Console.WriteLine("Step 4 prepare stream file");
             var streamContent = new StreamContent(userData.avatarFile.OpenReadStream());
-            Console.WriteLine("Step 5 stream file");
+            Console.WriteLine("Step 5 stream file, upload URL : " + uploadUrl);
             content.Add(streamContent, "file", fileName);
 
             var response = await client.PostAsync(uploadUrl, content);
