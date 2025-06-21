@@ -1,13 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using System.Text.RegularExpressions;
 using AspApi.Models;
 using AspApi.Services;
 using AspApi.Helpers;
 using AspApi.DTOServices;
 using AspApi.Utilities;
-using Microsoft.AspNetCore.Authorization;
 
 
 [Route("api/user")]
@@ -18,18 +16,18 @@ public class UserController : ControllerBase
     private readonly UserService _userService;
     private readonly ILanguageProvider _lang;
     private readonly ValidasiTokenService _validasiTokenService;
-    private readonly IWebHostEnvironment _env;
+    //private readonly IWebHostEnvironment _env;
 
 
     public UserController(UserService userService, 
                 ValidasiTokenService validasiTokenService, 
-                IWebHostEnvironment env,
+                //IWebHostEnvironment env,
                 ILanguageProvider lang)
     {
         _userService = userService;
         _validasiTokenService = validasiTokenService;
         _lang = lang;
-        _env = env;
+        //_env = env;
     }
 
     [HttpGet("count")]
@@ -216,8 +214,9 @@ public class UserController : ControllerBase
             }
 
             var uniqueFileName = $"{Guid.NewGuid()}{ext}";
-            var savePath = Path.Combine(_env.WebRootPath, "images", "avatars", uniqueFileName);
+            var savePath = Path.Combine("wwwroot", "images", "avatars", uniqueFileName);
 
+            Console.WriteLine("Save path : " + savePath);
             Directory.CreateDirectory(Path.GetDirectoryName(savePath)!);
 
             using var stream = new FileStream(savePath, FileMode.Create);
@@ -298,7 +297,8 @@ public class UserController : ControllerBase
             }
 
             var uniqueFileName = $"{Guid.NewGuid()}{ext}";
-            var savePath = Path.Combine(_env.WebRootPath, "images", "avatars", uniqueFileName);
+            //var savePath = Path.Combine(_env.WebRootPath, "images", "avatars", uniqueFileName);
+            var savePath = Path.Combine("wwwroot", "images", "avatars", uniqueFileName);
 
             // Buat direktori kalau belum ada
             Console.WriteLine("Mencoba membuat direktori kalau belum ada");
