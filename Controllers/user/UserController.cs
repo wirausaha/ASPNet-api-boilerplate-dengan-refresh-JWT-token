@@ -323,18 +323,26 @@ public class UserController : ControllerBase
 
             var uploadUrl = $"{supabaseProjectUrl}/storage/v1/object/{bucketName}/{fileName}";
 
+            Console.WriteLine("Step 1 declare httpclient Upload URL : " + uploadUrl);
+
             using var client = new HttpClient();
+            Console.WriteLine("Step 2 set token : " + supabaseAnonKey);
             client.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", supabaseAnonKey);
 
+            Console.WriteLine("Step 3 Declare multipar konten");
             using var content = new MultipartFormDataContent();
+            Console.WriteLine("Step 4 prepare stream file");
             var streamContent = new StreamContent(userData.avatarFile.OpenReadStream());
+            Console.WriteLine("Step 5 stream file");
             content.Add(streamContent, "file", fileName);
 
             var response = await client.PostAsync(uploadUrl, content);
 
             if (!response.IsSuccessStatusCode)
             {
+                Console.WriteLine("Not success");
+
                 var error = await response.Content.ReadAsStringAsync();
                 return StatusCode((int)response.StatusCode, $"Upload gagal: {error}");
             }
