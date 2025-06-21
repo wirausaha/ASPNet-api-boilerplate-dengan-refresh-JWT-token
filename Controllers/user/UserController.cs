@@ -262,7 +262,7 @@ public class UserController : ControllerBase
         if (UpdateUser == null || UpdateUser.IsEmpty)
         {
             return NotFound(new { success = false, message = (_lang.CurrentLang == "id") ?
-                                        "Data user tidak ditemukan" : "User not found" });
+                                        "Data user " + userData.userName + " tidak ditemukan" : "User " + userData.userName + " not found" });
         }
 
         userData.firstName = userData.firstName.Truncate(32);
