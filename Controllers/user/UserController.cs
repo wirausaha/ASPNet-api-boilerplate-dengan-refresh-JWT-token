@@ -269,8 +269,10 @@ public class UserController : ControllerBase
         userData.lastName =  userData.lastName.Truncate(32);
         userData.userRole = userData.userRole.Truncate(20);
 
+        Console.WriteLine("Cek image avatar");
         if (userData.avatarFile != null && userData.avatarFile.Length > 0)
         {
+            Console.WriteLine("Validasi simpan image avatar");
 
             const long maxSizeInBytes = 30 * 1024;  // 30 Kb maksimal  [1024 * 1024 = 1Mb];
             if (userData.avatarFile.Length > maxSizeInBytes)
@@ -309,7 +311,10 @@ public class UserController : ControllerBase
             using var stream = new FileStream(savePath, FileMode.Create);
             await userData.avatarFile.CopyToAsync(stream); */
 
+
             var fileName = Guid.NewGuid() + Path.GetExtension(userData.avatarFile.FileName);
+
+            Console.WriteLine("Persiapan simpan image avatar : " + fileName);
 
             // Supabase info (sebaiknya simpan di environment variable)
             var supabaseProjectUrl = "https://utakgxlsrvbttwubnfmm.supabase.co";
