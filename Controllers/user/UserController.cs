@@ -318,7 +318,7 @@ public class UserController : ControllerBase
 
             // Supabase info (sebaiknya simpan di environment variable)
             var supabaseProjectUrl = "https://utakgxlsrvbttwubnfmm.supabase.co";
-            var supabaseAnonKey = "ragQ5NvYSJKN2qZu1CqpiXFh/xYi8EQwN5/FF4NwmArgCzpl9KUqaXZ2/Ys4HsA1z3QYKEIc8yhgh2grKYC67w==";
+            var supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0YWtneGxzcnZidHR3dWJuZm1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA0MTQ3NDYsImV4cCI6MjA2NTk5MDc0Nn0.y_xNZfFnWcphWtKxHZlEWmgWbgFkoOTxRq6gfjJARtM";
             var bucketName = "avatars";
 
             var uploadUrl = $"{supabaseProjectUrl}/storage/v1/object/{bucketName}/{fileName}";
