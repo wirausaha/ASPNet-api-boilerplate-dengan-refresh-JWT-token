@@ -28,7 +28,6 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENV ASPNETCORE_URLS=http://+:${PORT}
-RUN mkdir -p /app/wwwroot/images/avatars && \
-    chmod -R 755 /app/wwwroot/images
+RUN chmod -R 755 /app/wwwroot/images/avatars
 RUN chmod -R 777 /app/wwwroot/images
 ENTRYPOINT ["dotnet", "AspApi.dll"]
