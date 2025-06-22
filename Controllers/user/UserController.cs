@@ -16,18 +16,19 @@ public class UserController : ControllerBase
     private readonly UserService _userService;
     private readonly ILanguageProvider _lang;
     private readonly ValidasiTokenService _validasiTokenService;
-    //private readonly IWebHostEnvironment _env;
+    
+    private readonly IWebHostEnvironment _env;
 
 
     public UserController(UserService userService, 
                 ValidasiTokenService validasiTokenService, 
-                //IWebHostEnvironment env,
+                IWebHostEnvironment env,
                 ILanguageProvider lang)
     {
         _userService = userService;
         _validasiTokenService = validasiTokenService;
         _lang = lang;
-        //_env = env;
+        _env = env;
     }
 
     [HttpGet("count")]
@@ -213,16 +214,26 @@ public class UserController : ControllerBase
                                         "File harus berupa gambar" :  "File must be an image" });                
             }
 
+
             var uniqueFileName = $"{Guid.NewGuid()}{ext}";
-            var savePath = Path.Combine("wwwroot", "images", "avatars", uniqueFileName);
 
-            Console.WriteLine("Save path : " + savePath);
-            Directory.CreateDirectory(Path.GetDirectoryName(savePath)!);
+            //var savePath = Path.Combine(_env.WebRootPath, "images", "avatars", uniqueFileName);
+            var publicUrl = Path.Combine("wwwroot", "images", "avatars", uniqueFileName);
 
-            using var stream = new FileStream(savePath, FileMode.Create);
+            // Buat direktori kalau belum ada
+            Console.WriteLine("Mencoba membuat direktori kalau belum ada");
+            try {
+                Directory.CreateDirectory(Path.GetDirectoryName(publicUrl)!); 
+            } catch {
+                Console.WriteLine("Directori sudah ada lanjut saja");
+            }
+            Console.WriteLine("Simpan file");
+            using var stream = new FileStream(publicUrl, FileMode.Create);
             await userData.avatarFile.CopyToAsync(stream);
 
-            UpdateUser.Avatar200x200 = "/images/avatars/" + uniqueFileName;
+            var savePath = Path.Combine("wwwroot", "images", "avatars", uniqueFileName);
+
+            UpdateUser.Avatar200x200 = publicUrl;
 
             // Simpan nama file ke database kalau perlu            
 
@@ -300,25 +311,36 @@ public class UserController : ControllerBase
 
             var uniqueFileName = $"{Guid.NewGuid()}{ext}";
 
-/*             //var savePath = Path.Combine(_env.WebRootPath, "images", "avatars", uniqueFileName);
-            var savePath = Path.Combine("wwwroot", "images", "avatars", uniqueFileName);
+            var savePath = Path.Combine("/images", "avatars", uniqueFileName);
+            Console.WriteLine("Save Path : " + savePath);
+            var publicUrl = Path.Combine(_env.WebRootPath, "images", "avatars", uniqueFileName);
+            
 
             // Buat direktori kalau belum ada
             Console.WriteLine("Mencoba membuat direktori kalau belum ada");
-            //Directory.CreateDirectory(Path.GetDirectoryName(savePath)!); 
+            try {
+                Directory.CreateDirectory(Path.GetDirectoryName(publicUrl)!); 
+            } catch {
+                Console.WriteLine("Directori sudah ada lanjut saja");
+            }
+            Console.WriteLine("Simpan file : " + savePath );
+            using var stream = new FileStream(publicUrl, FileMode.Create);
+            await userData.avatarFile.CopyToAsync(stream);
 
-            Console.WriteLine("Simpan file");
-            using var stream = new FileStream(savePath, FileMode.Create);
-            await userData.avatarFile.CopyToAsync(stream); */
 
-
-            var fileName = Guid.NewGuid() + Path.GetExtension(userData.avatarFile.FileName);
-
+            /* ============================================
+            | Bagian ini untuk menyimpan gambar Avatar ke Supabase.com kalau server tidak
+            | memungkinkan menyimpan gambar
+            | Ganti :
+            |    1. <url> dengan url storage dari supabase 
+            |    2. <anon.key> dengan key yang didapat dari Supabase.com
+            =============================================== */             
+            /* var fileName = Guid.NewGuid() + Path.GetExtension(userData.avatarFile.FileName);
             Console.WriteLine("Persiapan simpan image avatar : " + fileName);
 
             // Supabase info (sebaiknya simpan di environment variable)
-            var supabaseProjectUrl = "https://utakgxlsrvbttwubnfmm.supabase.co";
-            var supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0YWtneGxzcnZidHR3dWJuZm1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA0MTQ3NDYsImV4cCI6MjA2NTk5MDc0Nn0.y_xNZfFnWcphWtKxHZlEWmgWbgFkoOTxRq6gfjJARtM";
+            var supabaseProjectUrl = "<url>";
+            var supabaseAnonKey = "<anon.key>";
             var bucketName = "avatars";
 
             var uploadUrl = $"{supabaseProjectUrl}/storage/v1/object/{bucketName}/{fileName}";
@@ -326,15 +348,10 @@ public class UserController : ControllerBase
             Console.WriteLine("Step 1 declare httpclient Upload URL : " + uploadUrl);
 
             using var client = new HttpClient();
-            Console.WriteLine("Step 2 set token : " + supabaseAnonKey);
             client.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", supabaseAnonKey);
-
-            Console.WriteLine("Step 3 Declare multipar konten");
             using var content = new MultipartFormDataContent();
-            Console.WriteLine("Step 4 prepare stream file");
             var streamContent = new StreamContent(userData.avatarFile.OpenReadStream());
-            Console.WriteLine("Step 5 stream file, upload URL : " + uploadUrl);
             content.Add(streamContent, "file", fileName);
 
             var response = await client.PostAsync(uploadUrl, content);
@@ -345,20 +362,18 @@ public class UserController : ControllerBase
                 Console.WriteLine("Upload failed: " + error);
                 return StatusCode((int)response.StatusCode, $"Upload gagal: {error}");
             }
-
-            // Supabase akan otomatis menaruh file ke path public (kalau policy SELECT sudah dibuka)
             var publicUrl = $"{supabaseProjectUrl}/storage/v1/object/public/{bucketName}/{fileName}";            
+            Console.WriteLine($"File disimpan sebagai:{publicUrl}"); */
 
-            Console.WriteLine($"File disimpan sebagai:{publicUrl}");
-            UpdateUser.Avatar200x200 = publicUrl;
+            UpdateUser.Avatar200x200 = savePath;
 
             // Simpan nama file ke database kalau perlu            
 
         }
         //UpdateUser.Email = userData.Email;
+        //UpdateUser.DateOfBirth = userData.DateOfBirth;
         UpdateUser.FirstName = userData.firstName; 
         UpdateUser.LastName = userData.lastName;
-        //UpdateUser.DateOfBirth = userData.DateOfBirth;
         UpdateUser.Address = userData.address.Truncate(40);
         UpdateUser.Address2 = userData.address2.Truncate(40);
         UpdateUser.Province = userData.province.Truncate(20);

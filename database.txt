@@ -24,7 +24,7 @@ CREATE TABLE "users" (
   "Province" VARCHAR(20),
   "City" VARCHAR(20),
   "ZipCode" VARCHAR(6),
-  "Avatar200x200" VARCHAR(100),
+  "Avatar200x200" VARCHAR(255),
   "BaseLocale" VARCHAR(10) DEFAULT 'id-ID',
   "BaseLanguage" VARCHAR(10) DEFAULT 'id-ID',
   "IsCashier" SMALLINT DEFAULT 0,

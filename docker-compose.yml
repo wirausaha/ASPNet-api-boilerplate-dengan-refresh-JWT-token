@@ -9,10 +9,12 @@ services:
     expose:
       - "8080"    
     ports:
-      - "32769:8080" # mapping ke port yang di-EXPOSE di Dockerfile
+      - "5200:5200" # mapping ke port yang di-EXPOSE di Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_URLS=http://+:5200
+    volumes:
+      - ./aspapi/wwwroot/images/avatars:/app/wwwroot/images/avatars
     depends_on:
       - db
     networks:
@@ -41,12 +43,21 @@ services:
       POSTGRES_PASSWORD: Manager
       POSTGRES_DB: mydb 
     ports:
-      - "5434:5432"
+      - "5432:5432"
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
     networks:
       - appnet
     restart: unless-stopped
+
+  sftp:
+    image: atmoz/sftp
+    ports:
+      - "2222:22"
+    volumes:
+      - ./aspapi/wwwroot/images/avatars:/home/user/uploads
+    command: user:password:1001
+
 
 networks:
   appnet:

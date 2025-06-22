@@ -8,7 +8,6 @@ using AspApi.DTOServices;
 using Microsoft.AspNetCore.Http.Features;
 
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Tambahkan services ke dalam kontainer.
@@ -51,18 +50,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 | This is for PostgreSQL database connection|
 ==========================================*/ 
 // Kalau tidak menggunakan Railway ambil dari appsetting.json
-//connectionString = (builder.Configuration.GetConnectionString("PostgreDocker")); 
+var connectionString = (builder.Configuration.GetConnectionString("PostgreDocker")); 
 /*=========
 | Modifikasi untuk konek ke Railway
 =========== */
-var connectionString = builder.Configuration.GetConnectionString("Default") 
-                      ?? Environment.GetEnvironmentVariable("ConnectionStrings__Default");
+/* var connectionString = builder.Configuration.GetConnectionString("Default") 
+                      ?? Environment.GetEnvironmentVariable("ConnectionStrings__Default"); */
 
 
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseNpgsql(connectionString));
 
-/* ==== Catatan diatas untuk PostGreSQL ====*/
 
 builder.Services.AddAuthorization();
 
@@ -83,8 +81,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         builder => builder.WithOrigins(
                     "http://localhost:3000",
-                    "https://localhost:3000", 
-                    "https://aspnet-api-boilerplate-dengan-refresh-jwt-token-production.up.railway.app"
+                    "https://localhost:3000" 
                             )
                           .AllowAnyMethod()
                           .AllowAnyHeader());
@@ -107,18 +104,18 @@ var app = builder.Build();
 
 /*============= Khusus Railway, kalau bukan di remark ====== */
 // Bind ke port dari Railway / Render / Fly.io
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
-app.Urls.Add($"http://*:{port}");
+/* var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+app.Urls.Add($"http://*:{port}"); */
 
 
 // Configure the HTTP request pipeline.
 // Konfigurasi pipeline permintaan HTTP.
 
-//if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
-//{
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
+{
     app.UseSwagger();
     app.UseSwaggerUI();
-//}
+}
 
 app.UseHttpsRedirection();
 
@@ -133,19 +130,18 @@ app.Use(async (context, next) =>
 
 
 /* =========================
-| Urutan berikut penting, "katanya"
+| Urutan berikut penting
 =========================== */
 app.UseRouting();
 app.UseCors("AllowFrontend");
 app.UseAuthentication(); // Kalau pakai auth
 app.UseAuthorization();
 app.MapControllers();
-app.MapControllers();
 
 app.UseStaticFiles();
 
-// Routing sederhana
-app.MapGet("/", () => "API ASP.NET Core kamu sudah jalan!");
+// Routing sederhana untuk test
+app.MapGet("/", () => "API ASP.NET Core sudah jalan!");
 app.MapGet("/ping", () => "pong");
 app.MapGet("/debug", () => connectionString ?? "No connection string");
 

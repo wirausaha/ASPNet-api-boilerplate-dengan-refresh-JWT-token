@@ -98,7 +98,8 @@ public class RegisterController : ControllerBase
         UpdateUser.UserName = userName;
         UpdateUser.Email = email;
         UpdateUser.Password = passWord;
-        UpdateUser.Avatar200x200 = randomNumber.ToString() + ".jpg"; 
+        var publicUrl = Path.Combine("wwwroot", "images", "avatars", randomNumber.ToString() + ".jpg");
+        UpdateUser.Avatar200x200 = publicUrl;
         UpdateUser.TermsAgrement = request.termsagrement ? 1 : 0; 
         _userservice.AddUser(UpdateUser);
         return Ok(new { success = true, message = (_lang.CurrentLang == "id") ? 

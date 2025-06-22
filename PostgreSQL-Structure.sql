@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS public.users
     "Province" character varying(20) COLLATE pg_catalog."default",
     "City" character varying(20) COLLATE pg_catalog."default",
     "ZipCode" character varying(6) COLLATE pg_catalog."default",
-    "Avatar200x200" character varying(100) COLLATE pg_catalog."default",
+    "Avatar200x200" character varying(255) COLLATE pg_catalog."default",
     "BaseLocale" character varying(10) COLLATE pg_catalog."default" DEFAULT 'id-ID'::character varying,
     "BaseLanguage" character varying(10) COLLATE pg_catalog."default" DEFAULT 'id-ID'::character varying,
     "IsCashier" smallint DEFAULT 0,

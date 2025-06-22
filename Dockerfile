@@ -26,6 +26,6 @@ RUN dotnet publish "./AspApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
-ENV ASPNETCORE_URLS=http://+:${PORT}
+COPY --from=publish /app/publish .  
+RUN mkdir -p /app/wwwroot/images/avatars && chmod -R 777 /app/wwwroot/images
 ENTRYPOINT ["dotnet", "AspApi.dll"]
