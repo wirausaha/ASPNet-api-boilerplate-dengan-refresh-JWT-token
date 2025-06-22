@@ -32,6 +32,7 @@ nginx/
 # Secrets (jaga keamanan!)
 appsettings.*.json
 !appsettings.json
+appsettings-railway.json
 
 # NuGet
 *.nupkg
