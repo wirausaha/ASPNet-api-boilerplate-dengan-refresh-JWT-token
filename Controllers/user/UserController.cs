@@ -216,10 +216,10 @@ public class UserController : ControllerBase
 
 
             var uniqueFileName = $"{Guid.NewGuid()}{ext}";
-
-            //var savePath = Path.Combine(_env.WebRootPath, "images", "avatars", uniqueFileName);
-            var publicUrl = Path.Combine("wwwroot", "images", "avatars", uniqueFileName);
-
+            var savePath = Path.Combine("/images", "avatars", uniqueFileName);
+            Console.WriteLine("Save Path : " + savePath);
+            var publicUrl = Path.Combine(_env.WebRootPath, "images", "avatars", uniqueFileName);
+            
             // Buat direktori kalau belum ada
             Console.WriteLine("Mencoba membuat direktori kalau belum ada");
             try {
@@ -227,13 +227,11 @@ public class UserController : ControllerBase
             } catch {
                 Console.WriteLine("Directori sudah ada lanjut saja");
             }
-            Console.WriteLine("Simpan file");
+            Console.WriteLine("Simpan file : " + savePath );
             using var stream = new FileStream(publicUrl, FileMode.Create);
             await userData.avatarFile.CopyToAsync(stream);
 
-            var savePath = Path.Combine("wwwroot", "images", "avatars", uniqueFileName);
-
-            UpdateUser.Avatar200x200 = publicUrl;
+            UpdateUser.Avatar200x200 = savePath;
 
             // Simpan nama file ke database kalau perlu            
 

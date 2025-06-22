@@ -2,6 +2,10 @@
 /*===================================================
 | Asp Net boilerplate API to develop API base applications using PostgreSQL database & JWT Token. 
 | Author : Fajrie R Aradea
+|
+| Running App for this code avalaible in : http://143.198.221.182:5200
+| You can see the list of API's in : http://143.198.221.182:5200/swagger/index.html
+| This server is for learning purpose only, please be wise using it
 =====================================================*/
 You can replace the database with MySQL / SQLServer / PostgreSQL by changing the connection string and adding the EF Core package for the database engine used.
 
