@@ -32,16 +32,9 @@ namespace AspApi.Services
 
     public SysToken GetTokenInfo(string accesstoken, string refreshtoken = "")
     {
-        /* if (! string.IsNullOrEmpty(refreshtoken))
-        { */
-          // Console.WriteLine("GetTokenInfo : " + accesstoken + " | " + refreshtoken);
           return _context.SysTokens?
               .FirstOrDefault(x =>
                   x.AccessToken == accesstoken && (string.IsNullOrEmpty(refreshtoken) || x.RefreshToken == refreshtoken))!;
-   /*      } else {
-          Console.WriteLine("GetTokenInfo : [" + accesstoken + " ] ");
-          return _context.SysTokens?.FirstOrDefault(x => x.AccessToken == accesstoken)!;
-        } */
     }    
 
     public bool IsTokenValid(string accesstoken, string refreshtoken)
@@ -84,10 +77,10 @@ namespace AspApi.Services
       if (_context.SysTokens != null)
       {
         //Console.WriteLine("Hapus token");
-        //SysToken sysToken = _context.SysTokens.Where(x => x.AccessToken == accesstoken && x.RefreshToken == refreshtoken).FirstOrDefault()!;
+        //SysToken tbToken = _context.SysTokens.Where(x => x.AccessToken == sysToken.AccessToken && x.RefreshToken == sysToken.RefreshToken).FirstOrDefault()!;
         if (sysToken != null) {
-          //_context.SysTokens.Remove(sysToken);
-          sysToken.IsExpired = 1;
+          _context.SysTokens.Remove(sysToken);
+          //tbToken.IsExpired = 1;  // digunaakan saat pengujian atau jika dibutuhkan saja
           _context.SaveChanges();
           return true;
         }

@@ -6,6 +6,7 @@ using AspApi.Services;
 using AspApi.Helpers;
 using AspApi.DTOServices;
 using AspApi.Utilities;
+using System.Security.Claims;
 
 
 [Route("api/user")]
@@ -273,6 +274,10 @@ public class UserController : ControllerBase
             return NotFound(new { success = false, message = (_lang.CurrentLang == "id") ?
                                         "Data user " + userData.userName + " tidak ditemukan" : "User " + userData.userName + " not found" });
         }
+        if (UpdateUser.IsRoot == 1) {
+            return BadRequest(new { success = false, message = (_lang.CurrentLang == "id") ?
+                                        "User ini tidak boleh diubah" : "Update not allowed" });
+        }
 
         userData.firstName = userData.firstName.Truncate(32);
         userData.lastName =  userData.lastName.Truncate(32);
@@ -402,7 +407,13 @@ public class UserController : ControllerBase
         {
             return NotFound(new { success = false, message = (_lang.CurrentLang == "id") ?
                                         "Data user tidak ditemukan" : "User not found" });
+        } 
+        Console.WriteLine("Is Root : ", DeleteUser.IsRoot);
+        if (DeleteUser.IsRoot == 1) {
+            return BadRequest(new { success = false, message = (_lang.CurrentLang == "id") ?
+                                        "User ini tidak boleh dihapus" : "Delete not allowed" });
         }
+        Console.WriteLine("Menghapus user : " + request.userName);
         await _userService.DeleteUserAsync(request.userName);
         return Ok(new { success = true, message = (_lang.CurrentLang == "id") ? 
                                         "Data sudah dihapus" : "User deleted successfully" });
@@ -416,12 +427,20 @@ public class UserController : ControllerBase
         request.userName = (request.userName ?? "").Trim();
         request.oldPassword = (request.oldPassword ?? "").Trim();
         request.newPassword = (request.newPassword ?? "").Trim();
-
+        
         var UpdateUser = _userService.GetUser(request.userName, true);
         if (UpdateUser == null)
         {
             return NotFound(new { success = false, message = (_lang.CurrentLang == "id") ?
                                         "Data user tidak ditemukan" : "User not found" });
+        }
+        var userClaims = HttpContext.User;
+        string userName = userClaims.FindFirst(ClaimTypes.Name)?.Value ?? "";
+        if (userName != request.userName) {
+            return BadRequest(new { success = false, message = (_lang.CurrentLang == "id") ?
+                                        "Anda tidak berhak mengubah password orang ini" : 
+                                        "You are not allowed to change other password." });
+
         }
         var userValid = _userService.VerifyPassword(request.oldPassword!, UpdateUser.Password!); 
         if (!userValid)
@@ -447,6 +466,15 @@ public class UserController : ControllerBase
         {
             return NotFound(new { success = false, message = (_lang.CurrentLang == "id") ?
                                         "Data user tidak ditemukan" : "User not found" });
+        }
+        if (UpdateUser.IsRoot==1) {
+            var userClaims = HttpContext.User;
+            string userName = userClaims.FindFirst(ClaimTypes.Name)?.Value ?? "";
+            if (userName != request.userName) {
+                return BadRequest(new { success = false, message = (_lang.CurrentLang == "id") ?
+                                            "Anda tidak berhak mengubah password Administrator" : 
+                                            "You are not allowed to change Administrator password." });
+            }
         }
         UpdateUser.Password = _userService.HashPassword(request.newPassword!);
         await _userService.UpdateAsync(UpdateUser);

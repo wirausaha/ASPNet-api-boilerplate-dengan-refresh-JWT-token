@@ -50,29 +50,6 @@ public class AuthController : ControllerBase
         // Validasi sederhana
         // Simple Validation
 
-      var refreshtoken = GenerateRefreshToken();
-
-        // for testing refreshtoken is given only a few minutes here using 30 minutes or 1 hour if remember me
-        // untuk pengetesan refreshtoken diberikan hanya beberapa menit disini menggunakan 30 menit atau 1 jam kalau remember me
-        
-        //var expiresIn = request.rememberme ? TimeSpan.FromHours(1) : TimeSpan.FromMinutes(30);
-
-        Console.WriteLine("Username : " + request.username);
-        Console.WriteLine("Password : " + request.password);
-        var expiresIn = request.rememberme ? TimeSpan.FromDays(14) : TimeSpan.FromDays(1);
-
-        var sysToken = new SysToken
-        {
-            AccessToken = "Test",
-            RefreshToken = refreshtoken,
-            CompanyCode = "000",
-            UserId = "test",
-            UserRole = "admin",
-            Email = "cumi.email@saja.com",
-            ExpireDate = DateTime.Now.Add(expiresIn),
-        };
-        _tokenservice.AddToken(sysToken);    
-
         var userName = (request.username ?? "").Trim();
         var passWord = (request.password ?? "").Trim();
 
@@ -112,9 +89,12 @@ public class AuthController : ControllerBase
             companyRole, 
             defaultCompanyCode, request.rememberme);
 
+        // Notes : Bagian ini sempat diubah-ubah dan dipindah ke atas karena error
+        // saat pengujian di Railway sebelum publish sebaiknya diperiksa lagi  
+
         // Generate Refresh Token
         // buat refresh token
-       /*  var refreshtoken = GenerateRefreshToken();
+        var refreshtoken = GenerateRefreshToken();
 
         // for testing refreshtoken is given only a few minutes here using 30 minutes or 1 hour if remember me
         // untuk pengetesan refreshtoken diberikan hanya beberapa menit disini menggunakan 30 menit atau 1 jam kalau remember me
@@ -133,14 +113,12 @@ public class AuthController : ControllerBase
             Email = userLogin.Email!,
             ExpireDate = DateTime.Now.Add(expiresIn),
         };
-        _tokenservice.AddToken(sysToken);    */      
+        _tokenservice.AddToken(sysToken);    
 
         // Console.WriteLine("Token : " + token);
         return Ok(new { success = true, message = (_lang.CurrentLang == "id") ? 
                     "Login berhasil" : "Login success", 
                     token = token, refreshtoken = refreshtoken });
-        
-
     }
 
     [HttpGet("logout")]
@@ -155,7 +133,7 @@ public class AuthController : ControllerBase
         {
             _tokenservice.DisactivateToken(tokenInfo);
         }         
-        //HttpContext.SignOutAsync(); // 🔥 Hapus session user
+        //HttpContext.SignOutAsync(); // ini di remark karena error saat di deploy ke Railway 
         Console.WriteLine("Logout berhasil");
         return Ok(new { success = true, message = 
             (_lang.CurrentLang == "id") ? "Logout berhasil" : "Logout success" });
