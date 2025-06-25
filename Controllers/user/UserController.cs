@@ -7,11 +7,11 @@ using AspApi.Helpers;
 using AspApi.DTOServices;
 using AspApi.Utilities;
 using System.Security.Claims;
-
+using Microsoft.AspNetCore.Authorization;
 
 [Route("api/user")]
 [ApiController]
-//[Authorize]
+[Authorize]
 public class UserController : ControllerBase
 {
     private readonly UserService _userService;
@@ -19,7 +19,6 @@ public class UserController : ControllerBase
     private readonly ValidasiTokenService _validasiTokenService;
     
     private readonly IWebHostEnvironment _env;
-
 
     public UserController(UserService userService, 
                 ValidasiTokenService validasiTokenService, 
@@ -66,6 +65,25 @@ public class UserController : ControllerBase
         return Ok(new { success = true, exists = userExists });
     }
 
+    /*=================================
+    | Mengambil data profil dengan format class UserDataDtos
+    | Format ini sama dengan setiap baris yang di output ke datatable
+    ==================================*/
+    [HttpGet("getmyprofile")]
+    public IActionResult GetMyProfile()
+    {
+        var userClaims = HttpContext.User;
+        string userName = userClaims.FindFirst(ClaimTypes.Name)?.Value ?? "";
+        if (string.IsNullOrEmpty(userName)) {
+            return Unauthorized(new { success = false, message = (_lang.CurrentLang == "id") ? 
+                                        "Anda tidak berhak" : "Access not allowed" });
+        }
+
+        userName = (userName ?? "").Trim();
+        var userData = _userService.GetUserDataDtos(userName);
+        return Ok(new { success = true, user = userData });
+    }
+
     [HttpGet("emailexists")]
     public IActionResult EmailExists(string email)
     {
@@ -85,7 +103,33 @@ public class UserController : ControllerBase
         }
         var emailExists = _userService.EmailExist(email);
         return Ok(new { success = true, exists = emailExists });
-    }    
+    }
+
+    [HttpGet("getmyrole")]
+    public IActionResult GetMyRole()
+    {
+        var userClaims = HttpContext.User;
+        string userName = userClaims.FindFirst(ClaimTypes.Name)?.Value ?? "";
+        if (string.IsNullOrEmpty(userName)) {
+            return BadRequest(new { success = false, message = (_lang.CurrentLang == "id") ? 
+                                        "Username tidak boleh kosong" : "Username could not be empty" });
+        }
+        var myRole = _userService.GetMyRole(userName!);
+        return Ok(new { success = true, Role = myRole });
+    }   
+
+    [HttpGet("getavatar")]
+    public IActionResult GetAvatar()
+    {
+        var userClaims = HttpContext.User;
+        string userName = userClaims.FindFirst(ClaimTypes.Name)?.Value ?? "";
+        if (string.IsNullOrEmpty(userName)) {
+            return BadRequest(new { success = false, message = (_lang.CurrentLang == "id") ? 
+                                        "Username tidak boleh kosong" : "Username could not be empty" });
+        }
+        var avatar = _userService.GetAvatar(userName!);
+        return Ok(new { success = true, avatar = avatar });
+    }        
 
     public class UsernameOrEmailExistsRequest
     {
@@ -112,10 +156,9 @@ public class UserController : ControllerBase
     {
 
         List<string> aRole = new List<string> { "Superuser", 
-                "Data Administrator", 
-                "User Administrator", 
-                "Operator", "Chasier",
-                "Office boy" };
+                "Administrator", 
+                "Operator", "Kasir",
+                "Lainnya" };
         return Ok(new { success = true, role = aRole });
     }
 
@@ -373,8 +416,7 @@ public class UserController : ControllerBase
             // Simpan nama file ke database kalau perlu            
 
         }
-        //UpdateUser.Email = userData.Email;
-        //UpdateUser.DateOfBirth = userData.DateOfBirth;
+        UpdateUser.DateOfBirth = userData.dateOfBirth ?? DateOnly.FromDateTime(DateTime.Today);
         UpdateUser.FirstName = userData.firstName; 
         UpdateUser.LastName = userData.lastName;
         UpdateUser.Address = userData.address.Truncate(40);
@@ -468,13 +510,13 @@ public class UserController : ControllerBase
                                         "Data user tidak ditemukan" : "User not found" });
         }
         if (UpdateUser.IsRoot==1) {
-            var userClaims = HttpContext.User;
-            string userName = userClaims.FindFirst(ClaimTypes.Name)?.Value ?? "";
-            if (userName != request.userName) {
+            //var userClaims = HttpContext.User;
+            //string userName = userClaims.FindFirst(ClaimTypes.Name)?.Value ?? "";
+            //if (userName != request.userName) {
                 return BadRequest(new { success = false, message = (_lang.CurrentLang == "id") ?
                                             "Anda tidak berhak mengubah password Administrator" : 
                                             "You are not allowed to change Administrator password." });
-            }
+            //}
         }
         UpdateUser.Password = _userService.HashPassword(request.newPassword!);
         await _userService.UpdateAsync(UpdateUser);

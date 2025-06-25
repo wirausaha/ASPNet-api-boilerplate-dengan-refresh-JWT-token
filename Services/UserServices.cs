@@ -56,6 +56,26 @@ namespace AspApi.Services
     }
 
 
+    public string GetAvatar(string usernameOrEmail)
+    {
+      if (_context.Users != null)
+      {         
+        return _context.Users.Where(x => x.IsActive == 1 && (x.UserName == usernameOrEmail || x.Email == usernameOrEmail))
+            .Select(x => x.Avatar200x200).FirstOrDefault() ?? "";
+      }
+      return "";
+    }
+
+    public string GetMyRole(string usernameOrEmail)
+    {
+      if (_context.Users != null)
+      {         
+        return _context.Users.Where(x => x.IsActive == 1 && (x.UserName == usernameOrEmail || x.Email == usernameOrEmail))
+            .Select(x => x.UserRole).FirstOrDefault() ?? "";
+      }
+      return "";
+    }    
+
     /* ==============================================================
     | GetUserWithPagination()
     | Mengambil daftar user dengan pagination untuk DataTables menggunakan Dapper
@@ -96,7 +116,7 @@ namespace AspApi.Services
           //Console.WriteLine("Jumlah data: " + result.Count);            
         return retList;
       
-    }        
+    }            
 
     public UserDataDtos GetUserDataDtos(string userName) {
         if (_context.Users == null || string.IsNullOrEmpty(userName)) return new UserDataDtos();
